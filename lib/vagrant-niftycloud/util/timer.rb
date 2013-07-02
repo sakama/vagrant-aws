@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module AWS
+  module NiftyCloud
     module Util
       class Timer
         # A basic utility method that times the execution of the given

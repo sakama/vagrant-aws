@@ -1,9 +1,9 @@
-require "vagrant-aws/config"
+require "vagrant-niftycloud/config"
 
-describe VagrantPlugins::AWS::Config do
+describe VagrantPlugins::NiftyCloud::Config do
   let(:instance) { described_class.new }
 
-  # Ensure tests are not affected by AWS credential environment variables
+  # Ensure tests are not affected by NiftyCloud credential environment variables
   before :each do
     ENV.stub(:[] => nil)
   end
@@ -51,7 +51,7 @@ describe VagrantPlugins::AWS::Config do
   end
 
   describe "getting credentials from environment" do
-    context "without EC2 credential environment variables" do
+    context "without NiftyCloud credential environment variables" do
       subject do
         instance.tap do |o|
           o.finalize!
@@ -62,10 +62,10 @@ describe VagrantPlugins::AWS::Config do
       its("secret_access_key") { should be_nil }
     end
 
-    context "with EC2 credential environment variables" do
+    context "with NiftyCloud credential environment variables" do
       before :each do
-        ENV.stub(:[]).with("AWS_ACCESS_KEY").and_return("access_key")
-        ENV.stub(:[]).with("AWS_SECRET_KEY").and_return("secret_key")
+        ENV.stub(:[]).with("NIFTY_ACCESS_KEY").and_return("access_key")
+        ENV.stub(:[]).with("NIFTY_SECRET_KEY").and_return("secret_key")
       end
 
       subject do

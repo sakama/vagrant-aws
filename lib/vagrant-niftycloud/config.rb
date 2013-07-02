@@ -1,9 +1,9 @@
 require "vagrant"
 
 module VagrantPlugins
-  module AWS
+  module NiftyCloud
     class Config < Vagrant.plugin("2", :config)
-      # The access key ID for accessing AWS.
+      # The access key ID for accessing NiftyCloud.
       #
       # @return [String]
       attr_accessor :access_key_id
@@ -39,28 +39,28 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :private_ip_address
 
-      # The name of the AWS region in which to create the instance.
+      # The name of the NiftyCloud region in which to create the instance.
       #
       # @return [String]
       attr_accessor :region
 
-      # The EC2 endpoint to connect to
+      # The NiftyCloud endpoint to connect to
       #
       # @return [String]
       attr_accessor :endpoint
 
-      # The version of the AWS api to use
+      # The version of the NiftyCloud api to use
       #
       # @return [String]
       attr_accessor :version
 
-      # The secret access key for accessing AWS.
+      # The secret access key for accessing NiftyCloud.
       #
       # @return [String]
       attr_accessor :secret_access_key
 
       # The security groups to set on the instance. For VPC this must
-      # be a list of IDs. For EC2, it can be either.
+      # be a list of IDs. For NiftyCloud, it can be either.
       #
       # @return [Array<String>]
       attr_accessor :security_groups
@@ -75,7 +75,7 @@ module VagrantPlugins
       # @return [Hash<String, String>]
       attr_accessor :tags
 
-      # Use IAM Instance Role for authentication to AWS instead of an
+      # Use IAM Instance Role for authentication to NiftyCloud instead of an
       # explicit access_id and secret_access_key
       #
       # @return [Boolean]
@@ -116,7 +116,7 @@ module VagrantPlugins
       # configuration object. This allows the user to override things like
       # AMI and keypair name for regions. Example:
       #
-      #     aws.region_config "us-east-1" do |region|
+      #     niftycloud.region_config "us-east-1" do |region|
       #       region.ami = "ami-12345678"
       #       region.keypair_name = "company-east"
       #     end
@@ -124,7 +124,7 @@ module VagrantPlugins
       # @param [String] region The region name to configure.
       # @param [Hash] attributes Direct attributes to set on the configuration
       #   as a shortcut instead of specifying a full block.
-      # @yield [config] Yields a new AWS configuration.
+      # @yield [config] Yields a new NiftyCloud configuration.
       def region_config(region, attributes=nil, &block)
         # Append the block to the list of region configs for that region.
         # We'll evaluate these upon finalization.
@@ -173,10 +173,10 @@ module VagrantPlugins
       end
 
       def finalize!
-        # Try to get access keys from standard AWS environment variables; they
+        # Try to get access keys from standard NiftyCloud environment variables; they
         # will default to nil if the environment variables are not present.
-        @access_key_id     = ENV['AWS_ACCESS_KEY'] if @access_key_id     == UNSET_VALUE
-        @secret_access_key = ENV['AWS_SECRET_KEY'] if @secret_access_key == UNSET_VALUE
+        @access_key_id     = ENV['NIFTY_ACCESS_KEY'] if @access_key_id     == UNSET_VALUE
+        @secret_access_key = ENV['NIFTY_SECRET_KEY'] if @secret_access_key == UNSET_VALUE
 
         # AMI must be nil, since we can't default that
         @ami = nil if @ami == UNSET_VALUE
@@ -193,7 +193,7 @@ module VagrantPlugins
         # Default the private IP to nil since VPC is not default
         @private_ip_address = nil if @private_ip_address == UNSET_VALUE
 
-        # Default region is us-east-1. This is sensible because AWS
+        # Default region is us-east-1. This is sensible because NiftyCloud
         # generally defaults to this as well.
         @region = "us-east-1" if @region == UNSET_VALUE
         @availability_zone = nil if @availability_zone == UNSET_VALUE
@@ -240,7 +240,7 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
 
-        errors << I18n.t("vagrant_aws.config.region_required") if @region.nil?
+        errors << I18n.t("vagrant_niftycloud.config.region_required") if @region.nil?
 
         if @region
           # Get the configuration for the region we're using and validate only
@@ -248,16 +248,16 @@ module VagrantPlugins
           config = get_region_config(@region)
 
           if !config.use_iam_profile
-            errors << I18n.t("vagrant_aws.config.access_key_id_required") if \
+            errors << I18n.t("vagrant_niftycloud.config.access_key_id_required") if \
               config.access_key_id.nil?
-            errors << I18n.t("vagrant_aws.config.secret_access_key_required") if \
+            errors << I18n.t("vagrant_niftycloud.config.secret_access_key_required") if \
               config.secret_access_key.nil?
           end
 
-          errors << I18n.t("vagrant_aws.config.ami_required") if config.ami.nil?
+          errors << I18n.t("vagrant_niftycloud.config.ami_required") if config.ami.nil?
         end
 
-        { "AWS Provider" => errors }
+        { "NiftyCloud Provider" => errors }
       end
 
       # This gets the configuration for a specific region. It shouldn't

@@ -1,21 +1,21 @@
 require "vagrant"
 
 module VagrantPlugins
-  module AWS
+  module NiftyCloud
     module Errors
-      class VagrantAWSError < Vagrant::Errors::VagrantError
-        error_namespace("vagrant_aws.errors")
+      class VagrantNiftyCloudError < Vagrant::Errors::VagrantError
+        error_namespace("vagrant_niftycloud.errors")
       end
 
-      class FogError < VagrantAWSError
+      class FogError < VagrantNiftyCloudError
         error_key(:fog_error)
       end
 
-      class InstanceReadyTimeout < VagrantAWSError
+      class InstanceReadyTimeout < VagrantNiftyCloudError
         error_key(:instance_ready_timeout)
       end
 
-      class RsyncError < VagrantAWSError
+      class RsyncError < VagrantNiftyCloudError
         error_key(:rsync_error)
       end
     end

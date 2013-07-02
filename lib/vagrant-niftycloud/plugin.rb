@@ -1,30 +1,30 @@
 begin
   require "vagrant"
 rescue LoadError
-  raise "The Vagrant AWS plugin must be run within Vagrant."
+  raise "The Vagrant NiftyCloud plugin must be run within Vagrant."
 end
 
 # This is a sanity check to make sure no one is attempting to install
 # this into an early Vagrant version.
 if Vagrant::VERSION < "1.2.0"
-  raise "The Vagrant AWS plugin is only compatible with Vagrant 1.2+"
+  raise "The Vagrant NiftyCloud plugin is only compatible with Vagrant 1.2+"
 end
 
 module VagrantPlugins
-  module AWS
+  module NiftyCloud
     class Plugin < Vagrant.plugin("2")
-      name "AWS"
+      name "NiftyCloud"
       description <<-DESC
       This plugin installs a provider that allows Vagrant to manage
-      machines in AWS (EC2/VPC).
+      machines in NiftyCloud.
       DESC
 
-      config(:aws, :provider) do
+      config(:niftycloud, :provider) do
         require_relative "config"
         Config
       end
 
-      provider(:aws, parallel: true) do
+      provider(:niftycloud, parallel: true) do
         # Setup logging and i18n
         setup_logging
         setup_i18n
@@ -36,7 +36,7 @@ module VagrantPlugins
 
       # This initializes the internationalization strings.
       def self.setup_i18n
-        I18n.load_path << File.expand_path("locales/en.yml", AWS.source_root)
+        I18n.load_path << File.expand_path("locales/en.yml", NiftyCloud.source_root)
         I18n.reload!
       end
 
@@ -62,7 +62,7 @@ module VagrantPlugins
         # Set the logging level on all "vagrant" namespaced
         # logs as long as we have a valid level.
         if level
-          logger = Log4r::Logger.new("vagrant_aws")
+          logger = Log4r::Logger.new("vagrant_niftycloud")
           logger.outputters = Log4r::Outputter.stderr
           logger.level = level
           logger = nil

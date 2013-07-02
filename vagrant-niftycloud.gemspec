@@ -1,9 +1,9 @@
 $:.unshift File.expand_path("../lib", __FILE__)
-require "vagrant-aws/version"
+require "vagrant-nifycloud/version"
 
 Gem::Specification.new do |s|
-  s.name          = "vagrant-aws"
-  s.version       = VagrantPlugins::AWS::VERSION
+  s.name          = "vagrant-nifycloud"
+  s.version       = VagrantPlugins::NiftyCloud::VERSION
   s.platform      = Gem::Platform::RUBY
   s.authors       = "Mitchell Hashimoto"
   s.email         = "mitchell@hashicorp.com"
@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.description   = "Enables Vagrant to manage machines in EC2 and VPC."
 
   s.required_rubygems_version = ">= 1.3.6"
-  s.rubyforge_project         = "vagrant-aws"
+  s.rubyforge_project         = "vagrant-nifycloud"
 
   s.add_runtime_dependency "fog", "~> 1.10.0"
 

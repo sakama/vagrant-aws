@@ -1,7 +1,7 @@
-require "vagrant-aws/util/timer"
+require "vagrant-niftycloud/util/timer"
 
 module VagrantPlugins
-  module AWS
+  module NiftyCloud
     module Action
       # This is the same as the builtin provision except it times the
       # provisioner runs.
