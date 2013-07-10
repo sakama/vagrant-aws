@@ -5,21 +5,20 @@ Gem::Specification.new do |s|
   s.name          = "vagrant-nifycloud"
   s.version       = VagrantPlugins::NiftyCloud::VERSION
   s.platform      = Gem::Platform::RUBY
-  s.authors       = "Mitchell Hashimoto"
-  s.email         = "mitchell@hashicorp.com"
+  s.authors       = "Satoshi Akama"
+  s.email         = "satoshiakama@gmail.com"
   s.homepage      = "http://www.vagrantup.com"
-  s.summary       = "Enables Vagrant to manage machines in EC2 and VPC."
-  s.description   = "Enables Vagrant to manage machines in EC2 and VPC."
+  s.summary       = "Enables Vagrant to manage machines in Nifty Cloud"
+  s.description   = "Enables Vagrant to manage machines in Nifty Cloud."
 
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "vagrant-nifycloud"
-
-  s.add_runtime_dependency "fog", "~> 1.10.0"
 
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec-core", "~> 2.12.2"
   s.add_development_dependency "rspec-expectations", "~> 2.12.1"
   s.add_development_dependency "rspec-mocks", "~> 2.12.1"
+  s.add_dependency "nifty-cloud-sdk", ">= 1.7"
 
   # The following block of code determines the files that should be included
   # in the gem. It does this by reading all the files in the directory where
