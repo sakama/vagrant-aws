@@ -1,7 +1,5 @@
 require "log4r"
-
 require 'vagrant/util/retryable'
-
 require 'vagrant-niftycloud/util/timer'
 
 module VagrantPlugins
@@ -25,14 +23,9 @@ module VagrantPlugins
 
           # Get the configs
           region_config      = env[:machine].provider_config.get_region_config(region)
-          ami                = region_config.ami
-          availability_zone  = region_config.availability_zone
+          image_id           = region_config.image_id
           instance_type      = region_config.instance_type
-          keypair            = region_config.keypair_name
-          private_ip_address = region_config.private_ip_address
           security_groups    = region_config.security_groups
-          subnet_id          = region_config.subnet_id
-          tags               = region_config.tags
           user_data          = region_config.user_data
 
           # If there is no keypair then warn the user
@@ -40,38 +33,23 @@ module VagrantPlugins
             env[:ui].warn(I18n.t("vagrant_niftycloud.launch_no_keypair"))
           end
 
-          # If there is a subnet ID then warn the user
-          if subnet_id
-            env[:ui].warn(I18n.t("vagrant_niftycloud.launch_vpc_warning"))
-          end
-
           # Launch!
           env[:ui].info(I18n.t("vagrant_niftycloud.launching_instance"))
           env[:ui].info(" -- Type: #{instance_type}")
-          env[:ui].info(" -- AMI: #{ami}")
-          env[:ui].info(" -- Region: #{region}")
-          env[:ui].info(" -- Availability Zone: #{availability_zone}") if availability_zone
-          env[:ui].info(" -- Keypair: #{keypair}") if keypair
-          env[:ui].info(" -- Subnet ID: #{subnet_id}") if subnet_id
-          env[:ui].info(" -- Private IP: #{private_ip_address}") if private_ip_address
+          env[:ui].info(" -- ImageId: #{image_id}")
           env[:ui].info(" -- User Data: yes") if user_data
           env[:ui].info(" -- Security Groups: #{security_groups.inspect}") if !security_groups.empty?
           env[:ui].info(" -- User Data: #{user_data}") if user_data
 
           begin
             options = {
-              :availability_zone  => availability_zone,
               :flavor_id          => instance_type,
-              :image_id           => ami,
-              :key_name           => keypair,
-              :private_ip_address => private_ip_address,
-              :subnet_id          => subnet_id,
-              :tags               => tags,
+              :image_id           => image_id,
               :user_data          => user_data
             }
 
             if !security_groups.empty?
-              security_group_key = options[:subnet_id].nil? ? :groups : :security_group_ids
+              security_group_key = :groups
               options[security_group_key] = security_groups
             end
 

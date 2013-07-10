@@ -11,11 +11,8 @@ module VagrantPlugins
         end
 
         def call(env)
-          server = env[:niftycloud_compute].servers.get(env[:machine].id)
-
-          # Destroy the server and remove the tracking ID
           env[:ui].info(I18n.t("vagrant_niftycloud.terminating"))
-          server.destroy
+          response = env[:niftycloud_compute].terminate_instances(:instance_id => env[:machine].id)
           env[:machine].id = nil
 
           @app.call(env)

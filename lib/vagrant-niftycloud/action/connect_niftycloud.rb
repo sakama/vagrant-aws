@@ -1,4 +1,4 @@
-require "fog"
+require "NIFTY"
 require "log4r"
 
 module VagrantPlugins
@@ -21,22 +21,13 @@ module VagrantPlugins
           region_config     = env[:machine].provider_config.get_region_config(region)
 
           # Build the fog config
-          fog_config = {
-            :provider              => :niftycloud,
-            :region                => region
+          niftycloud_config = {
+            :access_key => region_config.access_key_id,
+            :secret_key => region_config.secret_access_key
           }
-          if region_config.use_iam_profile
-            fog_config[:use_iam_profile] = true
-          else
-            fog_config[:niftycloud_access_key_id] = region_config.access_key_id
-            fog_config[:niftycloud_secret_access_key] = region_config.secret_access_key
-          end
-
-          fog_config[:endpoint] = region_config.endpoint if region_config.endpoint
-          fog_config[:version]  = region_config.version if region_config.version
 
           @logger.info("Connecting to NiftyCloud...")
-          env[:niftycloud_compute] = Fog::Compute.new(fog_config)
+          env[:niftycloud_compute] = NIFTY::Cloud::Base.new(niftycloud_config)
 
           @app.call(env)
         end

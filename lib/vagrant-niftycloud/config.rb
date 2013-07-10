@@ -11,7 +11,7 @@ module VagrantPlugins
       # The ID of the AMI to use.
       #
       # @return [String]
-      attr_accessor :ami
+      attr_accessor :image_id
 
       # The availability zone to launch the instance into. If nil, it will
       # use the default for your account.
@@ -28,21 +28,6 @@ module VagrantPlugins
       #
       # @return [String]
       attr_accessor :instance_type
-
-      # The name of the keypair to use.
-      #
-      # @return [String]
-      attr_accessor :keypair_name
-
-      # The private IP address to give this machine (VPC).
-      #
-      # @return [String]
-      attr_accessor :private_ip_address
-
-      # The name of the NiftyCloud region in which to create the instance.
-      #
-      # @return [String]
-      attr_accessor :region
 
       # The NiftyCloud endpoint to connect to
       #
@@ -65,22 +50,6 @@ module VagrantPlugins
       # @return [Array<String>]
       attr_accessor :security_groups
 
-      # The subnet ID to launch the machine into (VPC).
-      #
-      # @return [String]
-      attr_accessor :subnet_id
-
-      # The tags for the machine.
-      #
-      # @return [Hash<String, String>]
-      attr_accessor :tags
-
-      # Use IAM Instance Role for authentication to NiftyCloud instead of an
-      # explicit access_id and secret_access_key
-      #
-      # @return [Boolean]
-      attr_accessor :use_iam_profile
-
       # The user data string
       #
       # @return [String]
@@ -88,21 +57,14 @@ module VagrantPlugins
 
       def initialize(region_specific=false)
         @access_key_id      = UNSET_VALUE
-        @ami                = UNSET_VALUE
-        @availability_zone  = UNSET_VALUE
+        @image_id           = UNSET_VALUE
         @instance_ready_timeout = UNSET_VALUE
         @instance_type      = UNSET_VALUE
-        @keypair_name       = UNSET_VALUE
-        @private_ip_address = UNSET_VALUE
-        @region             = UNSET_VALUE
         @endpoint           = UNSET_VALUE
         @version            = UNSET_VALUE
         @secret_access_key  = UNSET_VALUE
         @security_groups    = UNSET_VALUE
-        @subnet_id          = UNSET_VALUE
-        @tags               = {}
         @user_data          = UNSET_VALUE
-        @use_iam_profile    = UNSET_VALUE
 
         # Internal state (prefix with __ so they aren't automatically
         # merged)
@@ -112,66 +74,6 @@ module VagrantPlugins
         @__region_specific = region_specific
       end
 
-      # Allows region-specific overrides of any of the settings on this
-      # configuration object. This allows the user to override things like
-      # AMI and keypair name for regions. Example:
-      #
-      #     niftycloud.region_config "us-east-1" do |region|
-      #       region.ami = "ami-12345678"
-      #       region.keypair_name = "company-east"
-      #     end
-      #
-      # @param [String] region The region name to configure.
-      # @param [Hash] attributes Direct attributes to set on the configuration
-      #   as a shortcut instead of specifying a full block.
-      # @yield [config] Yields a new NiftyCloud configuration.
-      def region_config(region, attributes=nil, &block)
-        # Append the block to the list of region configs for that region.
-        # We'll evaluate these upon finalization.
-        @__region_config[region] ||= []
-
-        # Append a block that sets attributes if we got one
-        if attributes
-          attr_block = lambda do |config|
-            config.set_options(attributes)
-          end
-
-          @__region_config[region] << attr_block
-        end
-
-        # Append a block if we got one
-        @__region_config[region] << block if block_given?
-      end
-
-      #-------------------------------------------------------------------
-      # Internal methods.
-      #-------------------------------------------------------------------
-
-      def merge(other)
-        super.tap do |result|
-          # Copy over the region specific flag. "True" is retained if either
-          # has it.
-          new_region_specific = other.instance_variable_get(:@__region_specific)
-          result.instance_variable_set(
-            :@__region_specific, new_region_specific || @__region_specific)
-
-          # Go through all the region configs and prepend ours onto
-          # theirs.
-          new_region_config = other.instance_variable_get(:@__region_config)
-          @__region_config.each do |key, value|
-            new_region_config[key] ||= []
-            new_region_config[key] = value + new_region_config[key]
-          end
-
-          # Set it
-          result.instance_variable_set(:@__region_config, new_region_config)
-
-          # Merge in the tags
-          result.tags.merge!(self.tags)
-          result.tags.merge!(other.tags)
-        end
-      end
-
       def finalize!
         # Try to get access keys from standard NiftyCloud environment variables; they
         # will default to nil if the environment variables are not present.
@@ -179,59 +81,22 @@ module VagrantPlugins
         @secret_access_key = ENV['NIFTY_SECRET_KEY'] if @secret_access_key == UNSET_VALUE
 
         # AMI must be nil, since we can't default that
-        @ami = nil if @ami == UNSET_VALUE
+        @image_id = nil if @image_id == UNSET_VALUE
 
         # Set the default timeout for waiting for an instance to be ready
         @instance_ready_timeout = 120 if @instance_ready_timeout == UNSET_VALUE
 
         # Default instance type is an m1.small
-        @instance_type = "m1.small" if @instance_type == UNSET_VALUE
+        @instance_type = "mini" if @instance_type == UNSET_VALUE
 
-        # Keypair defaults to nil
-        @keypair_name = nil if @keypair_name == UNSET_VALUE
-
-        # Default the private IP to nil since VPC is not default
-        @private_ip_address = nil if @private_ip_address == UNSET_VALUE
-
-        # Default region is us-east-1. This is sensible because NiftyCloud
-        # generally defaults to this as well.
-        @region = "us-east-1" if @region == UNSET_VALUE
-        @availability_zone = nil if @availability_zone == UNSET_VALUE
         @endpoint = nil if @endpoint == UNSET_VALUE
         @version = nil if @version == UNSET_VALUE
 
         # The security groups are empty by default.
         @security_groups = [] if @security_groups == UNSET_VALUE
 
-        # Subnet is nil by default otherwise we'd launch into VPC.
-        @subnet_id = nil if @subnet_id == UNSET_VALUE
-
-        # By default we don't use an IAM profile
-        @use_iam_profile = false if @use_iam_profile == UNSET_VALUE
-
         # User Data is nil by default
         @user_data = nil if @user_data == UNSET_VALUE
-
-        # Compile our region specific configurations only within
-        # NON-REGION-SPECIFIC configurations.
-        if !@__region_specific
-          @__region_config.each do |region, blocks|
-            config = self.class.new(true).merge(self)
-
-            # Execute the configuration for each block
-            blocks.each { |b| b.call(config) }
-
-            # The region name of the configuration always equals the
-            # region config name:
-            config.region = region
-
-            # Finalize the configuration
-            config.finalize!
-
-            # Store it for retrieval
-            @__compiled_region_configs[region] = config
-          end
-        end
 
         # Mark that we finalized
         @__finalized = true
@@ -254,7 +119,7 @@ module VagrantPlugins
               config.secret_access_key.nil?
           end
 
-          errors << I18n.t("vagrant_niftycloud.config.ami_required") if config.ami.nil?
+          errors << I18n.t("vagrant_niftycloud.config.image_id_required") if config.image_id.nil?
         end
 
         { "NiftyCloud Provider" => errors }

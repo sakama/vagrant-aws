@@ -1,8 +1,8 @@
 $:.unshift File.expand_path("../lib", __FILE__)
-require "vagrant-nifycloud/version"
+require "vagrant-niftycloud/version"
 
 Gem::Specification.new do |s|
-  s.name          = "vagrant-nifycloud"
+  s.name          = "vagrant-niftycloud"
   s.version       = VagrantPlugins::NiftyCloud::VERSION
   s.platform      = Gem::Platform::RUBY
   s.authors       = "Satoshi Akama"
@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary       = "Enables Vagrant to manage machines in Nifty Cloud"
   s.description   = "Enables Vagrant to manage machines in Nifty Cloud."
 
-  s.required_rubygems_version = ">= 1.3.6"
+  s.required_rubygems_version = ">= 0.1.0"
   s.rubyforge_project         = "vagrant-nifycloud"
 
   s.add_development_dependency "rake"

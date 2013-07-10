@@ -7,10 +7,6 @@ module VagrantPlugins
         error_namespace("vagrant_niftycloud.errors")
       end
 
-      class FogError < VagrantNiftyCloudError
-        error_key(:fog_error)
-      end
-
       class InstanceReadyTimeout < VagrantNiftyCloudError
         error_key(:instance_ready_timeout)
       end
