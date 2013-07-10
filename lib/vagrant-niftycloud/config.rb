@@ -58,6 +58,7 @@ module VagrantPlugins
       def initialize(region_specific=false)
         @access_key_id      = UNSET_VALUE
         @image_id           = UNSET_VALUE
+        @availability_zone  = UNSET_VALUE
         @instance_ready_timeout = UNSET_VALUE
         @instance_type      = UNSET_VALUE
         @endpoint           = UNSET_VALUE
@@ -86,9 +87,10 @@ module VagrantPlugins
         # Set the default timeout for waiting for an instance to be ready
         @instance_ready_timeout = 120 if @instance_ready_timeout == UNSET_VALUE
 
-        # Default instance type is an m1.small
+        # Default instance type is an mini
         @instance_type = "mini" if @instance_type == UNSET_VALUE
 
+	@availability_zone = nil if @availability_zone == UNSET_VALUE
         @endpoint = nil if @endpoint == UNSET_VALUE
         @version = nil if @version == UNSET_VALUE
 

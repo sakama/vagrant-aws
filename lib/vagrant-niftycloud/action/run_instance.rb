@@ -24,6 +24,7 @@ module VagrantPlugins
           # Get the configs
           region_config      = env[:machine].provider_config.get_region_config(region)
           image_id           = region_config.image_id
+	  availability_zone  = region_config.availability_zone
           instance_type      = region_config.instance_type
           security_groups    = region_config.security_groups
           user_data          = region_config.user_data
@@ -37,12 +38,14 @@ module VagrantPlugins
           env[:ui].info(I18n.t("vagrant_niftycloud.launching_instance"))
           env[:ui].info(" -- Type: #{instance_type}")
           env[:ui].info(" -- ImageId: #{image_id}")
+	  env[:ui].info(" -- Availability Zone: #{availability_zone}") if availability_zone
           env[:ui].info(" -- User Data: yes") if user_data
           env[:ui].info(" -- Security Groups: #{security_groups.inspect}") if !security_groups.empty?
           env[:ui].info(" -- User Data: #{user_data}") if user_data
 
           begin
             options = {
+	      :availability_zone  => availability_zone,
               :flavor_id          => instance_type,
               :image_id           => image_id,
               :user_data          => user_data

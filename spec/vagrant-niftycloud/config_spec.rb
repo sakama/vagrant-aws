@@ -17,6 +17,7 @@ describe VagrantPlugins::NiftyCloud::Config do
 
     its("access_key_id")     { should be_nil }
     its("image_id")          { should be_nil }
+    its("availability_zone") { should be_nil }
     its("instance_ready_timeout") { should == 120 }
     its("instance_type")     { should == "m1.small" }
     its("secret_access_key") { should be_nil }
@@ -29,9 +30,9 @@ describe VagrantPlugins::NiftyCloud::Config do
     # simple boilerplate test, so I cut corners here. It just sets
     # each of these attributes to "foo" in isolation, and reads the value
     # and asserts the proper result comes back out.
-    [:access_key_id, :image_id, :instance_ready_timeout,
-      :instance_type,:secret_access_key, :security_groups,
-      :user_data].each do |attribute|
+    [:access_key_id, :image_id, :availability_zone,
+      :instance_ready_timeout, :instance_type, :secret_access_key,
+      :security_groups, :user_data].each do |attribute|
 
       it "should not default #{attribute} if overridden" do
         instance.send("#{attribute}=".to_sym, "foo")
