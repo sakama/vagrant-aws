@@ -54,7 +54,7 @@ Vagrant.configure("2") do |config|
     niftycloud.secret_access_key = ENV["NIFTY_CLOUD_SECRET_KEY"] || "<Your Secret Access Key>"
 
     niftycloud.image_id = "26"
-
+    niftycloud.key_name = "<YOUR SSH KEY NAME>"
     override.ssh.username = "root"
     override.ssh.private_key_path = "PATH TO YOUR PRIVATE KEY"
   end
@@ -97,7 +97,8 @@ boxフォーマットには`metadata.json`が必要です。
 
 
 * `access_key_id` - ニフティクラウドのAccessKey。[コントロールパネルから取得した値](http://cloud.nifty.com/help/status/api_key.htm)を指定して下さい。
-* `image_id` - サーバ立ち上げ時に指定するimage_id。(後述)
+* `image_id` - サーバ立ち上げ時に指定するimage_id。([後述](https://github.com/sakama/vagrant-niftycloud#image_id))
+* `key_name` - サーバ接続時に使用するSSHキー名。[コントロールパネルで設定した値](http://cloud.nifty.com/help/netsec/ssh_key.htm)を指定して下さい。
 * `availability_zone` - ニフティクラウドのゾーン。例)"east-12"
 * `instance_ready_timeout` - インスタンス起動実行からタイムアウトとなるまでの秒数。デフォルトは120秒です。
 * `instance_type` - サーバタイプ。例)"small2"。指定がない場合のデフォルト値は"mini"です。
@@ -131,6 +132,7 @@ Vagrant.configure("2") do |config|
     niftycloud.access_key_id = "foo"
     niftycloud.secret_access_key = "bar"
     niftycloud.region = "east-12"
+    niftycloud.key_name = "vagrantkey"
 
     # シンプルな書き方
     niftycloud.region_config "east-12", :image_id => 26
@@ -139,6 +141,7 @@ Vagrant.configure("2") do |config|
     niftycloud.region_config "east-13" do |region|
       region.image_id = 21
       region.instance_type = small
+      region.key_name = "vagrantkey2"
     end
   end
 end
@@ -152,11 +155,11 @@ end
 
 以下にニフティから提供されている公式イメージとそのIDを記載します。
 
-全てのOS・ディストリビューションでのテストは行なっていません。
+`全てのOS・ディストリビューションでの動作確認は行なっていません。`
 
 自分で作成したサーバイメージを使用する場合等でimage_idを確認したい時には[ニフティクラウドAPI](http://cloud.nifty.com/api/rest/reference.htm)の[DescribeImages](http://cloud.nifty.com/api/rest/DescribeImages.htm)を使用すると確認できます。
 
-[ニフティクラウドSDK for Ruby](http://cloud.nifty.com/api/sdk/#ruby)や[knife-nc](https://github.com/tily/ruby-knife-nc)等を使うとより簡単です。
+[ニフティクラウドSDK for Ruby](http://cloud.nifty.com/api/sdk/#ruby)や[ニフティクラウド CLI](http://cloud.nifty.com/api/cli/)、[knife-nc](https://github.com/tily/ruby-knife-nc)等を使うとより簡単です。
 
 image_id    | OS・ディストリビューション             | 
 ------------|------------------------------------|
@@ -194,9 +197,11 @@ Vagrantの`config.vm.network`で設定可能なネットワーク機能につい
 
 [vagrant-aws](https://github.com/mitchellh/vagrant-aws)には起動したインスタンスに任意のTagsを付与するためのオプションが存在しますが、ニフティクラウド自体がTags機能に対応していないため未対応となります。
 
-### User data
+### サーバ起動時スクリプト
 
-以下のようにUser dataを使用したインスタンスの立ち上げが可能です。
+以下のようにニフティクラウドの[サーバ起動時スクリプト](http://cloud.nifty.com/service/svscript.htm)を使用したインスタンスの立ち上げが可能です。
+
+ChefやFabricを使って立ち上げる場合、一般的には指定しないことが多いと思います。
 
 ```
 Vagrant.configure("2") do |config|

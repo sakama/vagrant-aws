@@ -22,33 +22,33 @@ module VagrantPlugins
           region = env[:machine].provider_config.region
 
           # Get the configs
-          region_config      = env[:machine].provider_config.get_region_config(region)
-          image_id           = region_config.image_id
-	  availability_zone  = region_config.availability_zone
-          instance_type      = region_config.instance_type
-          security_groups    = region_config.security_groups
-          user_data          = region_config.user_data
-
-          # If there is no keypair then warn the user
-          if !keypair
-            env[:ui].warn(I18n.t("vagrant_niftycloud.launch_no_keypair"))
-          end
+          region_config            = env[:machine].provider_config.get_region_config(region)
+          image_id                 = region_config.image_id
+          availability_zone        = region_config.availability_zone
+          instance_type            = region_config.instance_type
+          key_name                 = region_config.key_name,
+          security_groups          = [region_config.security_groups]
+          user_data                = region_config.user_data
 
           # Launch!
           env[:ui].info(I18n.t("vagrant_niftycloud.launching_instance"))
           env[:ui].info(" -- Type: #{instance_type}")
           env[:ui].info(" -- ImageId: #{image_id}")
-	  env[:ui].info(" -- Availability Zone: #{availability_zone}") if availability_zone
+          env[:ui].info(" -- Availability Zone: #{availability_zone}") if availability_zone
+          env[:ui].info(" -- Key Name: #{key_name}") if key_name
           env[:ui].info(" -- User Data: yes") if user_data
           env[:ui].info(" -- Security Groups: #{security_groups.inspect}") if !security_groups.empty?
           env[:ui].info(" -- User Data: #{user_data}") if user_data
 
           begin
             options = {
-	      :availability_zone  => availability_zone,
-              :flavor_id          => instance_type,
-              :image_id           => image_id,
-              :user_data          => user_data
+              :availability_zone        => availability_zone,
+              :instance_type            => instance_type,
+              :image_id                 => image_id,
+              :key_name                 => key_name,
+              :user_data                => user_data
+              :accounting_type          => 2 #従量課金
+              :disable_api_termination  => false #APIから即terminate可
             }
 
             if !security_groups.empty?
@@ -56,23 +56,21 @@ module VagrantPlugins
               options[security_group_key] = security_groups
             end
 
-            server = env[:niftycloud_compute].servers.create(options)
-          rescue Fog::Compute::NiftyCloud::NotFound => e
-            # Invalid subnet doesn't have its own error so we catch and
-            # check the error message here.
-            if e.message =~ /subnet ID/
-              raise Errors::FogError,
-                :message => "Subnet ID not found: #{subnet_id}"
-            end
+            # インスタンス立ち上げ開始
+            server = env[:niftycloud_compute].run_instances(options).instancesSet.item.first
 
-            raise
-          rescue Fog::Compute::NiftyCloud::Error => e
-            raise Errors::FogError, :message => e.message
+            # wait for it to be ready to do stuff
+            while server.instanceState.name != 'running'
+              server = env[:niftycloud_compute].describe_instances(:instance_id => server.instanceId).reservationSet.item.first.instancesSet.item.first
+              sleep 5
+            end
+          rescue
+            raise Errors::VagrantNiftyCloudError, :message => e.message
           end
 
           # Immediately save the ID since it is created at this point.
-          env[:machine].id = server.id
-
+          env[:machine].id = server.instanceId
+          
           # Wait for the instance to be ready first
           env[:metrics]["instance_ready_time"] = Util::Timer.time do
             tries = region_config.instance_ready_timeout / 2
@@ -86,13 +84,12 @@ module VagrantPlugins
                 # Wait for the server to be ready
                 server.wait_for(2) { ready? }
               end
-            rescue Fog::Errors::TimeoutError
+            rescue
               # Delete the instance
               terminate(env)
 
               # Notify the user
-              raise Errors::InstanceReadyTimeout,
-                timeout: region_config.instance_ready_timeout
+              raise Errors::InstanceReadyTimeout, timeout: region_config.instance_ready_timeout
             end
           end
 

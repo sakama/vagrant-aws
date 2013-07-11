@@ -21,26 +21,19 @@ module VagrantPlugins
           return nil if machine.id.nil?
 
           # Find the machine
-          instances = env[:niftycloud_compute].describe_instances(:instance_id => machine.id)
-          if instances.nil?
+          server = env[:niftycloud_compute].describe_instances(:instance_id => machine.id)).reservationSet.item.first.instancesSet.item.first
+          if server.nil?
             # The machine can't be found
             @logger.info("Machine couldn't be found, assuming it got destroyed.")
             machine.id = nil
             return nil
           end
 
-          reservationSet.item.each do |set|
-            set.instancesSet.item.each do |instance|
-              server = instance.instancesSet.item.first
-              if server.instanceId == machine.id
-                # Read the DNS info
-                return {
-                  :host => server.ipAddress
-                  :port => 22
-                }
-              end
-            end
-          end
+          # Read the DNS info
+          return {
+            :host => server.ipAddress
+            :port => 22
+          }
         end
       end
     end

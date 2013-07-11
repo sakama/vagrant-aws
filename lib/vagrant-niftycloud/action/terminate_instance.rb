@@ -11,11 +11,15 @@ module VagrantPlugins
         end
 
         def call(env)
-          env[:ui].info(I18n.t("vagrant_niftycloud.terminating"))
-          response = env[:niftycloud_compute].terminate_instances(:instance_id => env[:machine].id)
-          env[:machine].id = nil
+          begin
+            env[:ui].info(I18n.t("vagrant_niftycloud.terminating"))
+            response = env[:niftycloud_compute].terminate_instances(:instance_id => env[:machine].id)
+            env[:machine].id = nil
 
-          @app.call(env)
+            @app.call(env)
+          rescue NoMethodError
+            ui.error("Could not locate server '#{env[:machine].id}'.  Please verify it was provisioned in the current region.")	
+          end
         end
       end
     end

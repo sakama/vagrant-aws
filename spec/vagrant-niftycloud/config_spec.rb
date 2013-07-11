@@ -17,6 +17,7 @@ describe VagrantPlugins::NiftyCloud::Config do
 
     its("access_key_id")     { should be_nil }
     its("image_id")          { should be_nil }
+    its("key_name")          { should be_nil }
     its("availability_zone") { should be_nil }
     its("instance_ready_timeout") { should == 120 }
     its("instance_type")     { should == "m1.small" }
@@ -30,7 +31,7 @@ describe VagrantPlugins::NiftyCloud::Config do
     # simple boilerplate test, so I cut corners here. It just sets
     # each of these attributes to "foo" in isolation, and reads the value
     # and asserts the proper result comes back out.
-    [:access_key_id, :image_id, :availability_zone,
+    [:access_key_id, :image_id, :key_name, :availability_zone,
       :instance_ready_timeout, :instance_type, :secret_access_key,
       :security_groups, :user_data].each do |attribute|
 
@@ -74,12 +75,14 @@ describe VagrantPlugins::NiftyCloud::Config do
   describe "region config" do
     let(:config_access_key_id)     { "foo" }
     let(:config_image_id)          { "foo" }
+    let(:config_key_name)          { "foo" }
     let(:config_instance_type)     { "foo" }
     let(:config_secret_access_key) { "foo" }
 
     def set_test_values(instance)
       instance.access_key_id     = config_access_key_id
       instance.image_id          = config_image_id
+      instance.key_name          = config_key_name
       instance.instance_type     = config_instance_type
       instance.secret_access_key = config_secret_access_key
     end
@@ -96,6 +99,7 @@ describe VagrantPlugins::NiftyCloud::Config do
 
       its("access_key_id")     { should == config_access_key_id }
       its("image_id")          { should == config_image_id }
+      its("key_name")          { should == config_key_name }
       its("instance_type")     { should == config_instance_type }
       its("secret_access_key") { should == config_secret_access_key }
     end
@@ -103,6 +107,7 @@ describe VagrantPlugins::NiftyCloud::Config do
     context "with a specific config set" do
       its("access_key_id")     { should == config_access_key_id }
       its("image_id")          { should == config_image_id }
+      its("key_name")          { should == config_key_name }
       its("instance_type")     { should == config_instance_type }
       its("secret_access_key") { should == config_secret_access_key }
     end
@@ -119,6 +124,7 @@ describe VagrantPlugins::NiftyCloud::Config do
         # Set some top-level values
         instance.access_key_id = "parent"
         instance.image_id = "parent"
+        instance.key_name = "parent"
 
         # Finalize and get the region
         instance.finalize!
@@ -132,9 +138,9 @@ describe VagrantPlugins::NiftyCloud::Config do
     describe "shortcut configuration" do
       subject do
         # Use the shortcut configuration to set some values
-        instance.region_config "us-east-1", :image_id => "child"
+        instance.region_config "east-12", :image_id => "child"
         instance.finalize!
-        instance.get_region_config("us-east-1")
+        instance.get_region_config("east-12")
       end
 
       its("image_id") { should == "child" }

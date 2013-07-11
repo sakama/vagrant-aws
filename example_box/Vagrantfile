@@ -3,6 +3,6 @@
 
 Vagrant.configure("2") do |config|
   config.vm.provider :niftycloud do |niftycloud|
-    niftycloud.ami = "21"
+    niftycloud.image_id = 26
   end
 end
