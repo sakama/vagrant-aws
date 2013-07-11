@@ -1,25 +1,27 @@
 # Vagrant NiftyCloud Provider
 
-This is a [Vagrant](http://www.vagrantup.com) 1.2+ plugin that adds an [NiftyCloud](http://cloud.nifty.com/)
-provider to Vagrant, allowing Vagrant to control and provision machines in
-EC2 and VPC.
+`開発中！まだ動作しません！！`
 
-**NOTE:** This plugin requires Vagrant 1.2+,
+[Vagrant](http://www.vagrantup.com) 1.2以降のバージョンで[ニフティクラウド](http://cloud.nifty.com/)
+を操作するためのprovider機能を追加するプラグインです。
 
-## Features
+Vagrantでニフティクラウド上のサーバインスタンスの制御や[Chef](http://www.opscode.com/chef/) / [Fabric](http://docs.fabfile.org/)を使ったサーバのprovisioningが可能となります。
 
-* Boot NiftyCloudinstances.
-* SSH into the instances.
-* Provision the instances with any built-in Vagrant provisioner.
-* Minimal synced folder support via `rsync`.
-* Define region-specifc configurations so Vagrant can manage machines
-  in multiple regions.
+**注意:** このプラグインはVagrant 1.2以降に対応しています。
 
-## Usage
+## 機能
 
-Install using standard Vagrant 1.1+ plugin installation methods. After
-installing, `vagrant up` and specify the `niftycloud` provider. An example is
-shown below.
+* ニフティクラウド上のサーバインスタンスの起動
+* Vagrantから起動したインスタンスへのSSH
+* Chef cookbookを使用したインスタンスのprovisioning
+* `rsync`を使用したcookbook等の転送
+
+## 使用方法
+
+まずVagrant 1.2以降をインストールして下さい。
+
+その後このプラグインをインストールすると`vagrant up`コマンドのproviderオプションに`niftycloud`を指定できるようになります。
+
 
 ```
 $ vagrant plugin install vagrant-niftycloud
@@ -28,34 +30,30 @@ $ vagrant up --provider=niftycloud
 ...
 ```
 
-Of course prior to doing this, you'll need to obtain an NiftyCloud-compatible
-box file for Vagrant.
+vagrant upを実行する前に通常のVagrant使用時と同じようにboxファイルをVagrantに追加する必要があります。
 
 ## Quick Start
 
-After installing the plugin (instructions above), the quickest way to get
-started is to actually use a dummy NiftyCloud box and specify all the details
-manually within a `config.vm.provider` block. So first, add the dummy
-box using any name you want:
+上記手順でこのプラグインをインストール後、このプラグインを使うための最短の方法はダミーのboxを追加後Vagrantfileの`config.vm.provider`ブロックでその他のパラメータを指定するものです。
+
+そのためにはまず以下のように、任意の名前でダミーのboxを追加して下さい。
 
 ```
-$ vagrant box add dummy https://github.com/mitchellh/vagrant-niftycloud/raw/master/dummy.box
+$ vagrant box add dummy https://github.com/sakama/vagrant-niftycloud/raw/master/dummy.box
 ...
 ```
 
-And then make a Vagrantfile that looks like the following, filling in
-your information where necessary.
+Vagrantfileを以下のような内容で作成します。
 
 ```
 Vagrant.configure("2") do |config|
   config.vm.box = "dummy"
 
   config.vm.provider :niftycloud do |niftycloud, override|
-    niftycloud.access_key_id = "YOUR KEY"
-    niftycloud.secret_access_key = "YOUR SECRET KEY"
-    niftycloud.keypair_name = "KEYPAIR NAME"
+    niftycloud.access_key_id = ENV["NIFTY_CLOUD_ACCESS_KEY"] || "<Your Access Key ID>"
+    niftycloud.secret_access_key = ENV["NIFTY_CLOUD_SECRET_KEY"] || "<Your Secret Access Key>"
 
-    niftycloud.ami = "ami-7747d01e"
+    niftycloud.image_id = "26"
 
     override.ssh.username = "root"
     override.ssh.private_key_path = "PATH TO YOUR PRIVATE KEY"
@@ -63,170 +61,178 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-And then run `vagrant up --provider=niftycloud`.
+これで`vagrant up --provider=niftycloud`コマンドが実行可能となります。
 
-This will start an Ubuntu 12.04 instance in the us-east-1 region within
-your account. And assuming your SSH information was filled in properly
-within your Vagrantfile, SSH and provisioning will work as well.
 
-Note that normally a lot of this boilerplate is encoded within the box
-file, but the box file used for the quick start, the "dummy" box, has
-no preconfigured defaults.
+上の記述はCentOS 6.3 64bit Plainのサーバインスタンスを立ち上げるための記述です。
 
-If you have issues with SSH connecting, make sure that the instances
-are being launched with a security group that allows SSH access.
+SSH接続やcookbook等を使ったprovisioningに失敗する場合、以下のような理由が考えられます。
+
+* SSHオプションが正しくない
+* 正しい秘密鍵が指定されていない
+* 秘密鍵のパーミッションが正しくない
+* ニフティクラウドのFirewallルールによりSSH接続が遮断されている
+
+共通設定についてはboxファイル中に含めることもできます。
+
+このQuick Startで使用している"dummy"boxファイルにはデフォルトオプションは指定されていません。
+
 
 ## Box Format
 
-Every provider in Vagrant must introduce a custom box format. This
-provider introduces `niftycloud` boxes. You can view an example box in
-the [example_box/ directory](https://github.com/sakama/vagrant-niftycloud/tree/master/example_box).
-That directory also contains instructions on how to build a box.
+Vagrantのproviderを使用してニフティクラウドのサーバインスタンスを起動する場合、通常のVagrantの使い方と同じようにboxの追加が必要となります。
 
-The box format is basically just the required `metadata.json` file
-along with a `Vagrantfile` that does default settings for the
-provider-specific configuration for this provider.
+サンプルのboxについては[こちら](https://github.com/sakama/vagrant-niftycloud/tree/master/example_box)を参考にして下さい。
 
-## Configuration
+こちらのディレクトリにはboxの作成方法についてのドキュメントも置いてあります。
 
-This provider exposes quite a few provider-specific configuration options:
+boxフォーマットには`metadata.json`が必要です。
 
-* `access_key_id` - The access key for accessing NiftyCloud
-* `ami` - The AMI id to boot, such as "ami-12345678"
-* `availability_zone` - The availability zone within the region to launch
-  the instance. If nil, it will use the default set by Amazon.
-* `instance_ready_timeout` - The number of seconds to wait for the instance
-  to become "ready" in NiftyCloud. Defaults to 120 seconds.
-* `instance_type` - The type of instance, such as "m1.small". The default
-  value of this if not specified is "m1.small".
-* `keypair_name` - The name of the keypair to use to bootstrap AMIs
-   which support it.
-* `private_ip_address` - not to use
-* `region` - The region to start the instance in, such as "us-east-1"
-* `secret_access_key` - The secret access key for accessing NiftyCloud
-* `security_groups` - An array of security groups for the instance.
-  IDs.
-* `subnet_id` - The subnet to boot the instance into, for VPC.
-* `tags` - A hash of tags to set on the machine.
-* `use_iam_profile` - If true, will use [IAM profiles]
-  for credentials.
+このjsonファイル中に指定された値は`Vagrantfile` と同様に、providerとしてniftycloudを指定した場合のデフォルト値として扱われます。
 
-These can be set like typical provider-specific configuration:
 
-```ruby
+## 設定
+
+以下の様なパラメータに対応しています。
+
+
+* `access_key_id` - ニフティクラウドのAccessKey。[コントロールパネルから取得した値](http://cloud.nifty.com/help/status/api_key.htm)を指定して下さい。
+* `image_id` - サーバ立ち上げ時に指定するimage_id。(後述)
+* `availability_zone` - ニフティクラウドのゾーン。例)"east-12"
+* `instance_ready_timeout` - インスタンス起動実行からタイムアウトとなるまでの秒数。デフォルトは120秒です。
+* `instance_type` - サーバタイプ。例)"small2"。指定がない場合のデフォルト値は"mini"です。
+* `secret_access_key` - ニフティクラウドAPI経由でアクセスするためのSecretAccessKey。[コントロールパネルから取得した値](http://cloud.nifty.com/help/status/api_key.htm)を指定して下さい。
+* `security_groups` - Firewall名。
+
+上記のパラメータはVagrantfile中で以下のように設定することができます。
+
+
+```
 Vagrant.configure("2") do |config|
   # ... other stuff
 
   config.vm.provider :niftycloud do |niftycloud|
-    niftycloud.access_key_id = "foo"
-    niftycloud.secret_access_key = "bar"
+    niftycloud.access_key_id = ENV["NIFTY_CLOUD_ACCESS_KEY"] || "foo"
+    niftycloud.secret_access_key = ENV["NIFTY_CLOUD_SECRET_KEY"] || "bar"
   end
 end
 ```
 
-In addition to the above top-level configs, you can use the `region_config`
-method to specify region-specific overrides within your Vagrantfile. Note
-that the top-level `region` config must always be specified to choose which
-region you want to actually use, however. This looks like this:
+トップレベルの設定に加えて、リージョン特有の設定値を使用したい場合にはVagrantfile中で`region_config`を使用することもできます。
 
-```ruby
+記述は以下のようになります。
+
+
+```
 Vagrant.configure("2") do |config|
   # ... other stuff
 
   config.vm.provider :niftycloud do |niftycloud|
     niftycloud.access_key_id = "foo"
     niftycloud.secret_access_key = "bar"
-    niftycloud.region = "us-east-1"
+    niftycloud.region = "east-12"
 
-    # Simple region config
-    niftycloud.region_config "east-13", :ami => "ami-12345678"
+    # シンプルな書き方
+    niftycloud.region_config "east-12", :image_id => 26
 
-    # More comprehensive region config
+    # より多くの設定を上書きしたい場合
     niftycloud.region_config "east-13" do |region|
-      region.ami = "ami-87654321"
-      region.keypair_name = "company-west"
+      region.image_id = 21
+      region.instance_type = small
     end
   end
 end
 ```
 
-The region-specific configurations will override the top-level
-configurations when that region is used. They otherwise inherit
-the top-level configurations, as you would probably expect.
+リージョン特有の設定値はそのリージョンでサーバインスタンスを立ち上げる場合、トップレベルの設定値を上書きします。
 
-## Networks
+指定していない設定項目についてはトップレベルの設定値を継承します。
 
-Networking features in the form of `config.vm.network` are not
-supported with `vagrant-niftycloud`, currently. If any of these are
-specified, Vagrant will emit a warning, but will otherwise boot
-the NiftyCloud machine.
+## 主要なimage_idについて
 
-## Synced Folders
+以下にニフティから提供されている公式イメージとそのIDを記載します。
 
-There is minimal support for synced folders. Upon `vagrant up`,
-`vagrant reload`, and `vagrant provision`, the NiftyCloud provider will use
-`rsync` (if available) to uni-directionally sync the folder to
-the remote machine over SSH.
+全てのOS・ディストリビューションでのテストは行なっていません。
 
-This is good enough for all built-in Vagrant provisioners (shell,
-chef, and puppet) to work!
+自分で作成したサーバイメージを使用する場合等でimage_idを確認したい時には[ニフティクラウドAPI](http://cloud.nifty.com/api/rest/reference.htm)の[DescribeImages](http://cloud.nifty.com/api/rest/DescribeImages.htm)を使用すると確認できます。
 
-## Other Examples
+[ニフティクラウドSDK for Ruby](http://cloud.nifty.com/api/sdk/#ruby)や[knife-nc](https://github.com/tily/ruby-knife-nc)等を使うとより簡単です。
 
-### Tags
+image_id    | OS・ディストリビューション             | 
+------------|------------------------------------|
+1           | CentOS 5.3 32bit Plain             | 
+2           | CentOS 5.3 64bit Plain             | 
+3           | Red Hat Enterprise Linux 5.3 32bit |
+4           | Red Hat Enterprise Linux 5.3 64bit |
+6           | CentOS 5.3 32bit Server            | 
+7           | CentOS 5.3 64bit Server            | 
+12          | Microsoft Windows Server 2008 R2   | 
+13          | CentOS 5.6 64bit Plain             | 
+14          | CentOS 5.6 64bit Server            |
+16          | Microsoft SQLServer 2008 R2        |
+17          | Ubuntu 10.04 64bit Plain           |
+21          | CentOS 6.2 64bit Plain             |
+22          | Red Hat Enterprise Linux 5.8 64bit |
+24          | Red Hat Enterprise Linux 6.3 64bit |
+26          | CentOS 6.3 64bit Plain             |
+27          | Ubuntu 12.04 64bit Plain           |
 
-To use tags, simply define a hash of key/value for the tags you want to associate to your instance, like:
 
-```ruby
-Vagrant.configure("2") do |config|
-  # ... other stuff
+## VagrantのNetwork機能への対応
 
-  config.vm.provider "niftycloud" do |niftycloud|
-    niftycloud.tags = {
-	  'Name' => 'Some Name',
-	  'Some Key' => 'Some Value'
-    }
-  end
-end
-```
+
+Vagrantの`config.vm.network`で設定可能なネットワーク機能については、`vagrant-niftycloud`ではサポートしていません。 
+
+## フォルダの同期
+
+フォルダの同期についてはshell、chef、puppetといったVagrantのprovisionersを動作させるための最低限のサポートとなります。
+
+`vagrant up`、`vagrant reload`、`vagrant provision`コマンドが実行された場合、
+このプラグインは`rsync`を使用しSSH経由でローカル→リモートサーバへの単方向同期を行います。
+
+### Tags機能への対応
+
+[vagrant-aws](https://github.com/mitchellh/vagrant-aws)には起動したインスタンスに任意のTagsを付与するためのオプションが存在しますが、ニフティクラウド自体がTags機能に対応していないため未対応となります。
 
 ### User data
 
-You can specify user data for the instance being booted.
+以下のようにUser dataを使用したインスタンスの立ち上げが可能です。
 
-```ruby
+```
 Vagrant.configure("2") do |config|
   # ... other stuff
 
   config.vm.provider "niftycloud" do |niftycloud|
-    # Option 1: a single string
+    # オプションの書き方1
     niftycloud.user_data = "#!/bin/bash\necho 'got user data' > /tmp/user_data.log\necho"
 
-    # Option 2: use a file
+    # オプションの書き方2 ファイルから読み込む
     niftycloud.user_data = File.read("user_data.txt")
   end
 end
 ```
 
-## Development
+## 開発
 
-To work on the `vagrant-niftycloud` plugin, clone this repository out, and use
-[Bundler](http://gembundler.com) to get the dependencies:
+`vagrant-niftycloud`プラグインをこのレポジトリからgit cloneした後、[Bundler](http://gembundler.com) を使用して必要なgem等のインストールを行なって下さい。
 
 ```
 $ bundle
 ```
 
-Once you have the dependencies, verify the unit tests pass with `rake`:
+上記コマンド実行後、以下のコマンドにより`rake`を使用したユニットテストを実行することができます。
 
 ```
 $ bundle exec rake
 ```
 
-If those pass, you're ready to start developing the plugin. You can test
-the plugin without installing it into your Vagrant environment by just
-creating a `Vagrantfile` in the top level of this directory (it is gitignored)
-that uses it, and uses bundler to execute Vagrant:
+ユニットテストが通った場合、プラグインを動作させる準備が整います。
+
+プラグインをVagrant実行環境にインストールしなくても以下の操作で実行することが可能です。
+
+* トップレベルディレクトリに`Vagrantfile` を作成する(gitignoreしています)
+* bundle execコマンドにより実行
+
 
 ```
 $ bundle exec vagrant up --provider=niftycloud
