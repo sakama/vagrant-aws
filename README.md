@@ -5,7 +5,7 @@
 [Vagrant](http://www.vagrantup.com) 1.2以降のバージョンで[ニフティクラウド](http://cloud.nifty.com/)
 を操作するためのprovider機能を追加するプラグインです。
 
-Vagrantでニフティクラウド上のサーバインスタンスの制御や[Chef](http://www.opscode.com/chef/) / [Fabric](http://docs.fabfile.org/)を使ったサーバのprovisioningが可能となります。
+Vagrantでニフティクラウド上のサーバインスタンスの制御や[Chef](http://www.opscode.com/chef/) / [Puppet](https://puppetlabs.com/) / [Fabric](http://docs.fabfile.org/)等を使ったサーバのprovisioningが可能となります。
 
 **注意:** このプラグインはVagrant 1.2以降に対応しています。
 
@@ -13,37 +13,30 @@ Vagrantでニフティクラウド上のサーバインスタンスの制御や[
 
 * ニフティクラウド上のサーバインスタンスの起動
 * Vagrantから起動したインスタンスへのSSH
-* Chef cookbookを使用したインスタンスのprovisioning
+* Chef/Puppet/Fabric等を使用したインスタンスのprovisioning
 * `rsync`を使用したcookbook等の転送
-
-## 使用方法
-
-まずVagrant 1.2以降をインストールして下さい。
-
-その後このプラグインをインストールすると`vagrant up`コマンドのproviderオプションに`niftycloud`を指定できるようになります。
-
-
-```
-$ vagrant plugin install vagrant-niftycloud
-...
-$ vagrant up --provider=niftycloud
-...
-```
-
-vagrant upを実行する前に通常のVagrant使用時と同じようにboxファイルをVagrantに追加する必要があります。
 
 ## Quick Start
 
-上記手順でこのプラグインをインストール後、このプラグインを使うための最短の方法はダミーのboxを追加後Vagrantfileの`config.vm.provider`ブロックでその他のパラメータを指定するものです。
+まずVagrant 1.2以降をインストールして下さい。
 
-そのためにはまず以下のように、任意の名前でダミーのboxを追加して下さい。
+vagrant upを実行する前に通常のVagrant使用時と同じようにboxファイルをVagrantに追加する必要があります。
+
+自分でboxファイルを作成するかこちらで用意しているboxファイルを使用して、任意の名前でダミーのboxを追加して下さい。
 
 ```
+$ git clone https://github.com/sakama/vagrant-niftycloud.git
+$ cd vagrant-niftycloud
+$ bundle install
+$ bundle exec rake build
+$ vagrant plugin install pkg/vagrant-niftycloud-0.1.0.dev.gem
 $ vagrant box add dummy https://github.com/sakama/vagrant-niftycloud/raw/master/dummy.box
 ...
 ```
 
 Vagrantfileを以下のような内容で作成します。
+
+Vagrantfileの`config.vm.provider`ブロックで各種パラメータを指定して下さい。
 
 ```
 Vagrant.configure("2") do |config|
@@ -61,12 +54,17 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-これで`vagrant up --provider=niftycloud`コマンドが実行可能となります。
+以上の手順で`vagrant up`コマンドのproviderオプションに`niftycloud`を指定できるようになります。
+
+
+```
+$ vagrant up --provider=niftycloud
+```
 
 
 上の記述はCentOS 6.3 64bit Plainのサーバインスタンスを立ち上げるための記述です。
 
-SSH接続やcookbook等を使ったprovisioningに失敗する場合、以下のような理由が考えられます。
+SSH接続やcookbook等を使ったサーバのprovisioningに失敗する場合、以下のような理由が考えられます。
 
 * SSHオプションが正しくない
 * 正しい秘密鍵が指定されていない
@@ -75,14 +73,12 @@ SSH接続やcookbook等を使ったprovisioningに失敗する場合、以下の
 
 共通設定についてはboxファイル中に含めることもできます。
 
-このQuick Startで使用している"dummy"boxファイルにはデフォルトオプションは指定されていません。
+こちらで用意している"dummy"boxファイルにはデフォルトオプションは指定されていません。
 
 
 ## Box Format
 
-Vagrantのproviderを使用してニフティクラウドのサーバインスタンスを起動する場合、通常のVagrantの使い方と同じようにboxの追加が必要となります。
-
-サンプルのboxについては[こちら](https://github.com/sakama/vagrant-niftycloud/tree/master/example_box)を参考にして下さい。
+自分でboxファイルを作成したい場合[examble_box](https://github.com/sakama/vagrant-niftycloud/tree/master/example_box)を参考にして下さい。
 
 こちらのディレクトリにはboxの作成方法についてのドキュメントも置いてあります。
 
@@ -119,7 +115,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-トップレベルの設定に加えて、リージョン特有の設定値を使用したい場合にはVagrantfile中で`region_config`を使用することもできます。
+トップレベルの設定に加えて、リージョン/ゾーン特有の設定値を使用したい場合にはVagrantfile中で`region_config`を使用することもできます。
 
 記述は以下のようになります。
 
@@ -147,13 +143,13 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-リージョン特有の設定値はそのリージョンでサーバインスタンスを立ち上げる場合、トップレベルの設定値を上書きします。
+region_configブロックでリージョン/ゾーン特有の設定を指定した場合、そのリージョン/ゾーンでサーバインスタンスを立ち上げる際にはトップレベルの設定値を上書きします。
 
 指定していない設定項目についてはトップレベルの設定値を継承します。
 
 ## 主要なimage_idについて
 
-以下にニフティから提供されている公式イメージとそのIDを記載します。
+以下にニフティから提供されている[公式イメージ](http://cloud.nifty.com/service/spec.htm)とそのimage_idを記載します。
 
 `全てのOS・ディストリビューションでの動作確認は行なっていません。`
 
@@ -242,3 +238,7 @@ $ bundle exec rake
 ```
 $ bundle exec vagrant up --provider=niftycloud
 ```
+
+## ライセンス
+
+[vagrant-aws](https://github.com/mitchellh/vagrant-aws) をベースに NIFTY Cloud 向けに修正を加えたものです。 オリジナルに準じて MITライセンス を適用します。
