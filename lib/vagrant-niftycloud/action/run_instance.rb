@@ -18,62 +18,61 @@ module VagrantPlugins
           # Initialize metrics if they haven't been
           env[:metrics] ||= {}
 
-          # Get the region we're going to booting up in
-          region = env[:machine].provider_config.region
+          # Get the zone we're going to booting up in
+          zone = env[:machine].provider_config.zone
 
           # Get the configs
-          region_config            = env[:machine].provider_config.get_region_config(region)
-          image_id                 = region_config.image_id
-          availability_zone        = region_config.availability_zone
-          instance_type            = region_config.instance_type
-          key_name                 = region_config.key_name,
-          security_groups          = [region_config.security_groups]
-          user_data                = region_config.user_data
+          instance_id              = 'test2'
+          zone_config              = env[:machine].provider_config.get_zone_config(zone)
+          image_id                 = zone_config.image_id
+          zone                     = zone_config.zone
+          instance_type            = zone_config.instance_type
+          key_name                 = zone_config.key_name,
+          firewall                 = zone_config.firewall,
+          user_data                = zone_config.user_data
 
           # Launch!
           env[:ui].info(I18n.t("vagrant_niftycloud.launching_instance"))
-          env[:ui].info(" -- Type: #{instance_type}")
+          env[:ui].info(" -- Server Type: #{instance_type}")
           env[:ui].info(" -- ImageId: #{image_id}")
-          env[:ui].info(" -- Availability Zone: #{availability_zone}") if availability_zone
+          env[:ui].info(" -- Zone: #{zone}") if zone
           env[:ui].info(" -- Key Name: #{key_name}") if key_name
           env[:ui].info(" -- User Data: yes") if user_data
-          env[:ui].info(" -- Security Groups: #{security_groups.inspect}") if !security_groups.empty?
+          env[:ui].info(" -- Firewall: #{firewall.inspect}") if !firewall.empty?
           env[:ui].info(" -- User Data: #{user_data}") if user_data
 
-          begin
-            options = {
-              :availability_zone        => availability_zone,
-              :instance_type            => instance_type,
-              :image_id                 => image_id,
-              :key_name                 => key_name,
-              :user_data                => user_data
-              :accounting_type          => 2 #従量課金
-              :disable_api_termination  => false #APIから即terminate可
-            }
+          NIFTY::LOG.level = Logger::DEBUG
+          options = {
+            :instance_id              => instance_id,
+            #:availability_zone       => zone,
+            :instance_type            => instance_type,
+            :image_id                 => image_id,
+            :key_name                 => 'scubism',
+            :password                 => 'password',
+            :user_data                => user_data,
+            :accounting_type          => 2, #従量課金
+            :disable_api_termination  => false #APIから即terminate可
+          }
 
-            if !security_groups.empty?
-              security_group_key = :groups
-              options[security_group_key] = security_groups
-            end
+          if !firewall.empty?
+            options[:security_group] = firewall
+          end
 
-            # インスタンス立ち上げ開始
-            server = env[:niftycloud_compute].run_instances(options).instancesSet.item.first
+          # インスタンス立ち上げ開始
+          server = env[:niftycloud_compute].run_instances(options).instancesSet.item.first
 
-            # wait for it to be ready to do stuff
-            while server.instanceState.name != 'running'
-              server = env[:niftycloud_compute].describe_instances(:instance_id => server.instanceId).reservationSet.item.first.instancesSet.item.first
-              sleep 5
-            end
-          rescue
-            raise Errors::VagrantNiftyCloudError, :message => e.message
+          # wait for it to be ready to do stuff
+          while server.instanceState.name != 'running'
+            server = env[:niftycloud_compute].describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
+            sleep 5
           end
 
           # Immediately save the ID since it is created at this point.
-          env[:machine].id = server.instanceId
+          env[:machine].id = instance_id
           
           # Wait for the instance to be ready first
           env[:metrics]["instance_ready_time"] = Util::Timer.time do
-            tries = region_config.instance_ready_timeout / 2
+            tries = zone_config.instance_ready_timeout / 2
 
             env[:ui].info(I18n.t("vagrant_niftycloud.waiting_for_ready"))
             begin
@@ -89,7 +88,7 @@ module VagrantPlugins
               terminate(env)
 
               # Notify the user
-              raise Errors::InstanceReadyTimeout, timeout: region_config.instance_ready_timeout
+              raise Errors::InstanceReadyTimeout, timeout: zone_config.instance_ready_timeout
             end
           end
 

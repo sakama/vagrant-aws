@@ -18,11 +18,11 @@ describe VagrantPlugins::NiftyCloud::Config do
     its("access_key_id")     { should be_nil }
     its("image_id")          { should be_nil }
     its("key_name")          { should be_nil }
-    its("availability_zone") { should be_nil }
+    its("zone")              { should be_nil }
     its("instance_ready_timeout") { should == 120 }
-    its("instance_type")     { should == "m1.small" }
+    its("instance_type")     { should == "mini" }
     its("secret_access_key") { should be_nil }
-    its("security_groups")   { should == [] }
+    its("firewall")          { should == [] }
     its("user_data")         { should be_nil }
   end
 
@@ -31,9 +31,9 @@ describe VagrantPlugins::NiftyCloud::Config do
     # simple boilerplate test, so I cut corners here. It just sets
     # each of these attributes to "foo" in isolation, and reads the value
     # and asserts the proper result comes back out.
-    [:access_key_id, :image_id, :key_name, :availability_zone,
+    [:access_key_id, :image_id, :key_name, :zone,
       :instance_ready_timeout, :instance_type, :secret_access_key,
-      :security_groups, :user_data].each do |attribute|
+      :firewall, :user_data].each do |attribute|
 
       it "should not default #{attribute} if overridden" do
         instance.send("#{attribute}=".to_sym, "foo")
@@ -72,7 +72,7 @@ describe VagrantPlugins::NiftyCloud::Config do
     end
   end
 
-  describe "region config" do
+  describe "zone config" do
     let(:config_access_key_id)     { "foo" }
     let(:config_image_id)          { "foo" }
     let(:config_key_name)          { "foo" }
@@ -92,7 +92,7 @@ describe VagrantPlugins::NiftyCloud::Config do
         # Set the values on the top-level object
         set_test_values(instance)
 
-        # Finalize so we can get the region config
+        # Finalize so we can get the zone config
         instance.finalize!
 
       end
@@ -113,11 +113,11 @@ describe VagrantPlugins::NiftyCloud::Config do
     end
 
     describe "inheritance of parent config" do
-      let(:region_name) { "hashi-region" }
+      let(:zone_name) { "hashi-zone" }
 
       subject do
-        # Set the values on a specific region
-        instance.region_config region_name do |config|
+        # Set the values on a specific zone
+        instance.zone_config zone_name do |config|
           config.image_id = "child"
         end
 
@@ -126,9 +126,9 @@ describe VagrantPlugins::NiftyCloud::Config do
         instance.image_id = "parent"
         instance.key_name = "parent"
 
-        # Finalize and get the region
+        # Finalize and get the zone
         instance.finalize!
-        instance.get_region_config(region_name)
+        instance.get_zone_config(zone_name)
       end
 
       its("access_key_id") { should == "parent" }
@@ -138,9 +138,9 @@ describe VagrantPlugins::NiftyCloud::Config do
     describe "shortcut configuration" do
       subject do
         # Use the shortcut configuration to set some values
-        instance.region_config "east-12", :image_id => "child"
+        instance.zone_config "east-12", :image_id => "child"
         instance.finalize!
-        instance.get_region_config("east-12")
+        instance.get_zone_config("east-12")
       end
 
       its("image_id") { should == "child" }

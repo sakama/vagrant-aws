@@ -21,7 +21,7 @@ module VagrantPlugins
           return nil if machine.id.nil?
 
           # Find the machine
-          server = env[:niftycloud_compute].describe_instances(:instance_id => machine.id)).reservationSet.item.first.instancesSet.item.first
+          server = niftycloud.describe_instances(:instance_id => machine.id).reservationSet.item.first.instancesSet.item.first
           if server.nil?
             # The machine can't be found
             @logger.info("Machine couldn't be found, assuming it got destroyed.")

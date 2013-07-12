@@ -95,11 +95,11 @@ boxフォーマットには`metadata.json`が必要です。
 * `access_key_id` - ニフティクラウドのAccessKey。[コントロールパネルから取得した値](http://cloud.nifty.com/help/status/api_key.htm)を指定して下さい。
 * `image_id` - サーバ立ち上げ時に指定するimage_id。([後述](https://github.com/sakama/vagrant-niftycloud#image_id))
 * `key_name` - サーバ接続時に使用するSSHキー名。[コントロールパネルで設定した値](http://cloud.nifty.com/help/netsec/ssh_key.htm)を指定して下さい。
-* `availability_zone` - ニフティクラウドのゾーン。例)"east-12"
-* `instance_ready_timeout` - インスタンス起動実行からタイムアウトとなるまでの秒数。デフォルトは120秒です。
+* `zone` - ニフティクラウドのゾーン。例)"east-12"
+* `instance_ready_timeout` - インスタンス起動実行からタイムアウトとなるまでの秒数。デフォルトは300秒です。
 * `instance_type` - サーバタイプ。例)"small2"。指定がない場合のデフォルト値は"mini"です。
 * `secret_access_key` - ニフティクラウドAPI経由でアクセスするためのSecretAccessKey。[コントロールパネルから取得した値](http://cloud.nifty.com/help/status/api_key.htm)を指定して下さい。
-* `security_groups` - Firewall名。
+* `firewall` - Firewall名。
 
 上記のパラメータはVagrantfile中で以下のように設定することができます。
 
@@ -108,14 +108,14 @@ boxフォーマットには`metadata.json`が必要です。
 Vagrant.configure("2") do |config|
   # ... other stuff
 
-  config.vm.provider :niftycloud do |niftycloud|
+  config.vm.provider :niftycloud do |niftycloud, override|
     niftycloud.access_key_id = ENV["NIFTY_CLOUD_ACCESS_KEY"] || "foo"
     niftycloud.secret_access_key = ENV["NIFTY_CLOUD_SECRET_KEY"] || "bar"
   end
 end
 ```
 
-トップレベルの設定に加えて、リージョン/ゾーン特有の設定値を使用したい場合にはVagrantfile中で`region_config`を使用することもできます。
+トップレベルの設定に加えて、リージョン/ゾーン特有の設定値を使用したい場合にはVagrantfile中で`zone_config`を使用することもできます。
 
 記述は以下のようになります。
 
@@ -124,26 +124,29 @@ end
 Vagrant.configure("2") do |config|
   # ... other stuff
 
-  config.vm.provider :niftycloud do |niftycloud|
+  config.vm.provider :niftycloud do |niftycloud, override|
     niftycloud.access_key_id = "foo"
     niftycloud.secret_access_key = "bar"
-    niftycloud.region = "east-12"
+    niftycloud.zone = "east-12"
     niftycloud.key_name = "vagrantkey"
+    niftycloud.firewall = "test"
+    override.ssh.username = "root"
+    override.ssh.private_key_path = "/path/to/private_key.pem"
 
     # シンプルな書き方
-    niftycloud.region_config "east-12", :image_id => 26
+    niftycloud.zone_config "east-12", :image_id => 26
 
     # より多くの設定を上書きしたい場合
-    niftycloud.region_config "east-13" do |region|
-      region.image_id = 21
-      region.instance_type = small
-      region.key_name = "vagrantkey2"
+    niftycloud.zone_config "east-13" do |zone|
+      zone.image_id = 21
+      zone.instance_type = small
+      zone.key_name = "vagrantkey2"
     end
   end
 end
 ```
 
-region_configブロックでリージョン/ゾーン特有の設定を指定した場合、そのリージョン/ゾーンでサーバインスタンスを立ち上げる際にはトップレベルの設定値を上書きします。
+zone_configブロックでリージョン/ゾーン特有の設定を指定した場合、そのリージョン/ゾーンでサーバインスタンスを立ち上げる際にはトップレベルの設定値を上書きします。
 
 指定していない設定項目についてはトップレベルの設定値を継承します。
 

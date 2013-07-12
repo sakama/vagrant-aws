@@ -21,22 +21,23 @@ module VagrantPlugins
           return :not_created if machine.id.nil?
 
           # Find the machine
-          server = env[:niftycloud_compute].describe_instances(:instance_id => machine.id)).reservationSet.item.first.instancesSet.item.first
-          if server.nil?
+          begin
+            server = niftycloud.describe_instances(:instance_id => machine.id).reservationSet.item.first.instancesSet.item.first
+
+            state = server.instanceState.name
+            case state
+            when 'suspending'
+              @logger.info("Machine not found or terminated, assuming it got destroyed.")
+              machine.id = nil
+              return :not_created
+            else
+              return state.to_sym
+            end
+          rescue => e
             # The machine can't be found
             @logger.info("Machine not found or terminated, assuming it got destroyed.")
             machine.id = nil
             return :not_created
-          end
-
-          state = server.instanceState.name
-          case state
-          when 'stopped', 'warning', 'waiting', 'creating', 'suspending', 'uploading', 'import_error', 'pending'
-            @logger.info("Machine not found or terminated, assuming it got destroyed.")
-            machine.id = nil
-            return :not_created
-          else
-            return state.to_sym
           end
         end
       end

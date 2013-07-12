@@ -39,8 +39,8 @@ en:
         An AMI must be configured via "ami"
       private_key_missing: |-
         The specified private key for NiftyCloud could not be found
-      region_required: |-
-        A region must be specified via "region"
+      zone_required: |-
+        A zone must be specified via "zone"
       secret_access_key_required: |-
         A secret access key is required via "secret_access_key"
 
