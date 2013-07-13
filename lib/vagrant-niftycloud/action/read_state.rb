@@ -31,13 +31,17 @@ module VagrantPlugins
               machine.id = nil
               return :not_created
             else
+              @logger.debug("Server State #{state.to_sym}")
               return state.to_sym
             end
-          rescue => e
-            # The machine can't be found
-            @logger.info("Machine not found or terminated, assuming it got destroyed.")
-            machine.id = nil
-            return :not_created
+          rescue NIFTY::ConfigurationError => e
+            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudConfigurationError,
+              :code    => e.error_code,
+              :message => e.error_message
+          rescue NIFTY::ArgumentError => e
+            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
+              :code    => e.error_code,
+              :message => e.error_message
           end
         end
       end
