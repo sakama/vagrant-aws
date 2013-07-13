@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "log4r"
 require 'vagrant/util/retryable'
 require 'vagrant-niftycloud/util/timer'
@@ -41,7 +42,6 @@ module VagrantPlugins
           env[:ui].info(" -- Firewall: #{firewall.inspect}") if !firewall.empty?
           env[:ui].info(" -- User Data: #{user_data}") if user_data
 
-          NIFTY::LOG.level = Logger::DEBUG
           options = {
             :instance_id              => instance_id,
             #:availability_zone       => zone,
@@ -58,18 +58,31 @@ module VagrantPlugins
             options[:security_group] = firewall
           end
 
-          # インスタンス立ち上げ開始
-          server = env[:niftycloud_compute].run_instances(options).instancesSet.item.first
+          # 例外の定義は以下参照
+          # http://cloud.nifty.com/api/sdk/rdoc/
+          begin
+            NIFTY::LOG.level = Logger::DEBUG
+            # インスタンス立ち上げ開始
+            server = env[:niftycloud_compute].run_instances(options).instancesSet.item.first
 
-          # wait for it to be ready to do stuff
-          while server.instanceState.name != 'running'
-            server = env[:niftycloud_compute].describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
-            sleep 5
+            # wait for it to be ready to do stuff
+            while server.instanceState.name != 'running'
+              server = env[:niftycloud_compute].describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
+              sleep 5
+            end
+          rescue ConfigurationError => e
+            raise Errors::NiftyCloudConfigurationError,
+              :code    => e.error_code,
+              :message => e.error_message
+          rescue ArgumentError => e
+            raise Errors::NiftyCloudArgumentError,
+              :code    => e.error_code,
+              :message => e.error_message
           end
 
           # Immediately save the ID since it is created at this point.
           env[:machine].id = instance_id
-          
+
           # Wait for the instance to be ready first
           env[:metrics]["instance_ready_time"] = Util::Timer.time do
             tries = zone_config.instance_ready_timeout / 2

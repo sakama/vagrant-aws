@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "log4r"
 
 module VagrantPlugins
@@ -11,6 +12,9 @@ module VagrantPlugins
         end
 
         def call(env)
+
+          # 例外の定義は以下参照
+          # http://cloud.nifty.com/api/sdk/rdoc/
           begin
             env[:ui].info(I18n.t("vagrant_niftycloud.terminating"))
 
@@ -42,8 +46,16 @@ module VagrantPlugins
             env[:machine].id = nil
 
             @app.call(env)
-          rescue NoMethodError
-            ui.error("Could not locate server '#{env[:machine].id}'.  Please verify it was provisioned in the current zone.")	
+          rescue ConfigurationError => e
+            raise Errors::NiftyCloudConfigurationError,
+              :code    => e.error_code,
+              :message => e.error_message
+          rescue ArgumentError => e
+            raise Errors::NiftyCloudArgumentError,
+              :code    => e.error_code,
+              :message => e.error_message
+          rescue => e
+            ui.error("Could not locate server '#{env[:machine].id}'.  Please verify it was provisioned in the current zone.")
           end
         end
       end

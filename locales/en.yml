@@ -35,8 +35,8 @@ en:
     config:
       access_key_id_required: |-
         An access key ID must be specified via "access_key_id"
-      ami_required: |-
-        An AMI must be configured via "ami"
+      image_id_required: |-
+        An Image ID must be configured via "image_id"
       private_key_missing: |-
         The specified private key for NiftyCloud could not be found
       zone_required: |-
@@ -45,16 +45,29 @@ en:
         A secret access key is required via "secret_access_key"
 
     errors:
-      fog_error: |-
-        There was an error talking to NiftyCloud. The error message is shown
-        below:
-
-        %{message}
       instance_ready_timeout: |-
         The instance never became "ready" in NiftyCloud. The timeout currently
         set waiting for the instance to become ready is %{timeout} seconds.
         Please verify that the machine properly boots. If you need more time
         set the `instance_ready_timeout` configuration on the NiftyCloud provider.
+      niftycloud_response_error: |-
+        Response Error occured while connecting to  Nifty Cloud API
+
+        Error Code: %{code}
+        %{message}
+
+      niftycloud_configuration_error: |-
+        Configuration for Nifty Cloud API is invalid
+
+        Error Code: %{code}
+        %{message}
+
+      niftycloud_argument_error: |-
+        Argument for Nifty Cloud API is invalid.
+
+        Error Code: %{code}
+        %{message}
+
       rsync_error: |-
         There was an error when attemping to rsync a share folder.
         Please inspect the error message below for more info.

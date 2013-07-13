@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "NIFTY"
 require "log4r"
 
@@ -26,9 +27,25 @@ module VagrantPlugins
             :secret_key => zone_config.secret_access_key
           }
 
-          @logger.info("Connecting to NiftyCloud...")
-          NIFTY::LOG.level = Logger::DEBUG
-          env[:niftycloud_compute] = NIFTY::Cloud::Base.new(niftycloud_config)
+          # 例外の定義は以下参照
+          # http://cloud.nifty.com/api/sdk/rdoc/
+          begin
+            @logger.info("Connecting to NiftyCloud...")
+            NIFTY::LOG.level = Logger::DEBUG
+            env[:niftycloud_compute] = NIFTY::Cloud::Base.new(niftycloud_config)
+          rescue ConfigurationError => e
+            raise Errors::NiftyCloudConfigurationError,
+              :code    => e.error_code,
+              :message => e.error_message
+          rescue ArgumentError => e
+            raise Errors::NiftyCloudArgumentError,
+              :code    => e.error_code,
+              :message => e.error_message
+          rescue ResponseError => e
+            raise Errors::NiftyCloudResponseError,
+              :code    => e.error_code,
+              :message => e.error_message
+          end
 
           @app.call(env)
         end
