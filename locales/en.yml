@@ -80,10 +80,18 @@ en:
       short_not_created: |-
         not created
       long_not_created: |-
-        The EC2 instance is not created. Run `vagrant up` to create it.
-
+        The Nifty Cloud instance is not created. Run `vagrant up` to create it.
       short_running: |-
         running
       long_running: |-
-        The EC2 instance is running. To stop this machine, you can run
+        The Nifty Cloud instance is running. To stop this machine, you can run
         `vagrant halt`. To destroy the machine, you can run `vagrant destroy`.
+      short_stopped: |-
+        stopped
+      long_stopped: |-
+        The Nifty Cloud instance is stopped. To destroy the machine, you can run
+        `vagrant destroy`.
+      short_pending: |-
+        pending
+      long_pending: |-
+        The Nifty Cloud instance is pending. Please wait for process to finish

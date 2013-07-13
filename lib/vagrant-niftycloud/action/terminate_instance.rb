@@ -17,8 +17,8 @@ module VagrantPlugins
           # http://cloud.nifty.com/api/sdk/rdoc/
           begin
             env[:ui].info(I18n.t("vagrant_niftycloud.terminating"))
-	    
-	    # 起動直後等、terminate処理できないステータスの場合一旦待つ
+
+            # 起動直後等、terminate処理できないステータスの場合一旦待つ
             server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
             while server.instanceState.name == 'pending'
               sleep 5
@@ -46,7 +46,7 @@ module VagrantPlugins
               env[:machine].id = nil
 
               @app.call(env)
-	    end
+            end
           rescue NIFTY::ConfigurationError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudConfigurationError,
               :code    => e.error_code,
@@ -56,7 +56,7 @@ module VagrantPlugins
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
               :code    => e.error_code,
               :message => e.error_message
-	  end
+          end
         end
       end
     end

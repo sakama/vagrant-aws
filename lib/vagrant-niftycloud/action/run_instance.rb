@@ -23,6 +23,8 @@ module VagrantPlugins
           zone = env[:machine].provider_config.zone
 
           # Get the configs
+          # TODO 開発フェーズなのでinstance_idを固定にしている
+          # Vagrantfileで設定できるようにすべきか、その場合Vagrantfileを共有している環境では同じIDでサーバ立てるとエラーになることを考慮する
           instance_id              = 'test2'
           zone_config              = env[:machine].provider_config.get_zone_config(zone)
           image_id                 = zone_config.image_id
@@ -72,38 +74,35 @@ module VagrantPlugins
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
               :code    => e.error_code,
               :message => e.error_message
+          rescue NIFTY::ResponseError => e
+            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseError,
+              :code    => e.error_code,
+              :message => e.error_message
           end
             
-	  # wait for it to be ready to do stuff
-          while server.instanceState.name != 'running'
-            sleep 5
-            server = env[:niftycloud_compute].describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
-	  end
+          # Wait for the instance to be ready first
+          env[:metrics]["instance_ready_time"] = Util::Timer.time do
+            # リトライ回数。サーバステータスがrunningになるまで5秒のintervalでdescribe_instancesを実行するので
+            # タイムアウト秒数/5を上限回数とする
+            tries = zone_config.instance_ready_timeout / 5
 
+            env[:ui].info(I18n.t("vagrant_niftycloud.waiting_for_ready"))
+            count = 0
+            while server.instanceState.name != 'running'
+              count += 1 
+              sleep 5
+              server = env[:niftycloud_compute].describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
+              if count > tries
+                # Delete the instance
+                terminate(env)
+                # Notify the user
+                raise Errors::InstanceReadyTimeout, timeout: zone_config.instance_ready_timeout
+              end
+            end
+          end
+          
           # Immediately save the ID since it is created at this point.
           env[:machine].id = instance_id
-
-          # Wait for the instance to be ready first
-          #env[:metrics]["instance_ready_time"] = Util::Timer.time do
-          #  tries = zone_config.instance_ready_timeout / 2
-
-          #  env[:ui].info(I18n.t("vagrant_niftycloud.waiting_for_ready"))
-          #  begin
-          #    retryable(:on => Fog::Errors::TimeoutError, :tries => tries) do
-          #      # If we're interrupted don't worry about waiting
-          #      next if env[:interrupted]
-
-                # Wait for the server to be ready
-          #      server.wait_for(2) { ready? }
-          #    end
-          #  rescue
-          #    # Delete the instance
-          #    terminate(env)
-
-              # Notify the user
-          #    raise Errors::InstanceReadyTimeout, timeout: zone_config.instance_ready_timeout
-          #  end
-          #end
 
           @logger.info("Time to instance ready: #{env[:metrics]["instance_ready_time"]}")
 
@@ -114,7 +113,7 @@ module VagrantPlugins
               while true
                 # If we're interrupted then just back out
                 break if env[:interrupted]
-                break if env[:machine].communicate.ready?
+                #break if env[:machine].communicate.ready?
                 sleep 2
               end
             end

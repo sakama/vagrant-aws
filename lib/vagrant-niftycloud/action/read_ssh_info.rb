@@ -21,19 +21,29 @@ module VagrantPlugins
           return nil if machine.id.nil?
 
           # Find the machine
-          server = niftycloud.describe_instances(:instance_id => machine.id).reservationSet.item.first.instancesSet.item.first
-          if server.nil?
+          # 例外の定義は以下参照
+          # http://cloud.nifty.com/api/sdk/rdoc/
+          begin
+            server = niftycloud.describe_instances(:instance_id => machine.id).reservationSet.item.first.instancesSet.item.first
+            # Read the DNS info
+            return {
+              :host => server.ipAddress,
+              :port => 22
+            }
+          rescue NIFTY::ConfigurationError => e
+            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudConfigurationError,
+              :code    => e.error_code,
+              :message => e.error_message
+          rescue NIFTY::ArgumentError => e
+            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
+              :code    => e.error_code,
+              :message => e.error_message
+          rescue NIFTY::ResponseError => e
             # The machine can't be found
             @logger.info("Machine couldn't be found, assuming it got destroyed.")
             machine.id = nil
-            return nil
+            return nil 
           end
-
-          # Read the DNS info
-          return {
-            :host => server.ipAddress,
-            :port => 22
-          }
         end
       end
     end

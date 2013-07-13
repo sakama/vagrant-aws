@@ -21,6 +21,8 @@ module VagrantPlugins
           return :not_created if machine.id.nil?
 
           # Find the machine
+          # 例外の定義は以下参照
+          # http://cloud.nifty.com/api/sdk/rdoc/
           begin
             server = niftycloud.describe_instances(:instance_id => machine.id).reservationSet.item.first.instancesSet.item.first
 
@@ -42,6 +44,9 @@ module VagrantPlugins
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
               :code    => e.error_code,
               :message => e.error_message
+          rescue NIFTY::ResponseError => e
+            machine.id = nil
+            return :not_created
           end
         end
       end
