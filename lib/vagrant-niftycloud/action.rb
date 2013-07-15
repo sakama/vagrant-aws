@@ -104,7 +104,6 @@ module VagrantPlugins
 
             b2.use TimedProvision
             b2.use SyncFolders
-            b2.use WarnNetworks
             b2.use RunInstance
           end
         end
@@ -170,7 +169,6 @@ module VagrantPlugins
       autoload :RunInstance, action_root.join("run_instance")
       autoload :SyncFolders, action_root.join("sync_folders")
       autoload :TimedProvision, action_root.join("timed_provision")
-      autoload :WarnNetworks, action_root.join("warn_networks")
       autoload :TerminateInstance, action_root.join("terminate_instance")
       autoload :SuspendInstance, action_root.join("suspend_instance")
       autoload :HaltInstance, action_root.join("suspend_instance")
