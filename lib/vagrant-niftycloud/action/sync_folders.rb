@@ -39,10 +39,12 @@ module VagrantPlugins
                                 :hostpath => hostpath,
                                 :guestpath => guestpath))
 
+            # TODO 通常vagrantはvagrantユーザで接続するのがニフティクラウドはデフォルトがroot接続なので
+            # このプロセスは省く。Redhat系以外のUbuntu等他のOS/ディストリビューションの場合の確認必要
             # Create the guest path
-            env[:machine].communicate.sudo("mkdir -p '#{guestpath}'")
-            env[:machine].communicate.sudo(
-              "chown #{ssh_info[:username]} '#{guestpath}'")
+            # env[:machine].communicate.sudo("mkdir -p '#{guestpath}'")
+            # env[:machine].communicate.sudo(
+            #  "chown #{ssh_info[:username]} '#{guestpath}'")
 
             # Rsync over to the guest path using the SSH info
             command = [
