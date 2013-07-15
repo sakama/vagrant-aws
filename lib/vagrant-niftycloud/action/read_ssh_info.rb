@@ -32,17 +32,15 @@ module VagrantPlugins
             }
           rescue NIFTY::ConfigurationError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudConfigurationError,
-              :code    => e.error_code,
-              :message => e.error_message
+              :message => e.message
           rescue NIFTY::ArgumentError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
-              :code    => e.error_code,
-              :message => e.error_message
+              :message => e.message
           rescue NIFTY::ResponseError => e
             # The machine can't be found
             @logger.info("Machine couldn't be found, assuming it got destroyed.")
             machine.id = nil
-            return nil 
+            return nil
           end
         end
       end

@@ -50,13 +50,11 @@ en:
       niftycloud_configuration_error: |-
         Configuration for Nifty Cloud API is invalid
 
-        Error Code: %{code}
         %{message}
 
       niftycloud_argument_error: |-
         Argument for Nifty Cloud API is invalid.
 
-        Error Code: %{code}
         %{message}
 
       rsync_error: |-

@@ -45,10 +45,10 @@ module VagrantPlugins
 
           options = {
             :instance_id              => instance_id,
-            #:availability_zone       => zone,
+            :availability_zone        => zone,
             :instance_type            => instance_type,
             :image_id                 => image_id,
-            :key_name                 => 'scubism',
+            :key_name                 => key_name,
             :password                 => 'password',
             :user_data                => user_data,
             :accounting_type          => 2, #従量課金
@@ -62,17 +62,14 @@ module VagrantPlugins
           # 例外の定義は以下参照
           # http://cloud.nifty.com/api/sdk/rdoc/
           begin
-            NIFTY::LOG.level = Logger::DEBUG
             # インスタンス立ち上げ開始
             server = env[:niftycloud_compute].run_instances(options).instancesSet.item.first
           rescue NIFTY::ConfigurationError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudConfigurationError,
-              :code    => e.error_code,
-              :message => e.error_message
+              :message => e.message
           rescue NIFTY::ArgumentError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
-              :code    => e.error_code,
-              :message => e.error_message
+              :message => e.message
           rescue NIFTY::ResponseError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseError,
               :code    => e.error_code,

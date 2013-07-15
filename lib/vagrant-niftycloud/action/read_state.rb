@@ -38,12 +38,10 @@ module VagrantPlugins
             end
           rescue NIFTY::ConfigurationError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudConfigurationError,
-              :code    => e.error_code,
-              :message => e.error_message
+              :message => e.message
           rescue NIFTY::ArgumentError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
-              :code    => e.error_code,
-              :message => e.error_message
+              :message => e.message
           rescue NIFTY::ResponseError => e
             machine.id = nil
             return :not_created
