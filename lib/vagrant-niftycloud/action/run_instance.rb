@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 require "log4r"
 require 'vagrant/util/retryable'
-require 'vagrant-niftycloud/util/timer'
 
 module VagrantPlugins
   module NiftyCloud
@@ -80,15 +79,15 @@ module VagrantPlugins
               :message => e.error_message
           end
             
-          # Wait for the instance to be ready first
-          env[:metrics]["instance_ready_time"] = Util::Timer.time do
-            # リトライ回数。サーバステータスがrunningになるまで5秒のintervalでdescribe_instancesを実行するので
-            # タイムアウト秒数/5を上限回数とする
-            tries = zone_config.instance_ready_timeout / 5
-
+          # リトライ回数。サーバステータスがrunningになるまで5秒のintervalでdescribe_instancesを実行するので
+          # タイムアウト秒数/5を上限回数とする
+          tries = zone_config.instance_ready_timeout / 5
+          count = 0
+          retryable(:on => Errors::InstanceReadyTimeout, :tries => tries) do
             env[:ui].info(I18n.t("vagrant_niftycloud.waiting_for_ready"))
-            count = 0
             while server.instanceState.name != 'running'
+              next if env[:interrupted]
+
               count += 1 
               sleep 5
               server = env[:niftycloud_compute].describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
@@ -103,26 +102,6 @@ module VagrantPlugins
           
           # Immediately save the ID since it is created at this point.
           env[:machine].id = instance_id
-
-          @logger.info("Time to instance ready: #{env[:metrics]["instance_ready_time"]}")
-
-          if !env[:interrupted]
-            env[:metrics]["instance_ssh_time"] = Util::Timer.time do
-              # Wait for SSH to be ready.
-              env[:ui].info(I18n.t("vagrant_niftycloud.waiting_for_ssh"))
-              while true
-                # If we're interrupted then just back out
-                break if env[:interrupted]
-                #break if env[:machine].communicate.ready?
-                sleep 2
-              end
-            end
-
-            @logger.info("Time for SSH ready: #{env[:metrics]["instance_ssh_time"]}")
-
-            # Ready and booted!
-            env[:ui].info(I18n.t("vagrant_niftycloud.ready"))
-          end
 
           # Terminate the instance if we were interrupted
           terminate(env) if env[:interrupted]
