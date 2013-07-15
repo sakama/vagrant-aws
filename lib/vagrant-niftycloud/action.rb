@@ -110,6 +110,54 @@ module VagrantPlugins
         end
       end
 
+      # This action is called to suspend the remote machine.
+      def self.action_suspend
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use Call, IsCreated do |env, b2|
+            if env[:result]
+              b2.use ConfigValidate
+              b2.use ConnectNiftyCloud
+              b2.use SuspendInstance
+            else
+              b2.use MessageNotCreated
+              next
+            end
+          end
+        end
+      end
+
+      # This action is called to halt the remote machine.
+      def self.action_halt
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use Call, IsCreated do |env, b2|
+            if env[:result]
+              b2.use ConfigValidate
+              b2.use ConnectNiftyCloud
+              b2.use SuspendInstance
+            else
+              b2.use MessageNotCreated
+              next
+            end
+          end
+        end
+      end
+
+      # This action is called to resume the remote machine.
+      def self.action_resume
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use Call, IsCreated do |env, b2|
+            if env[:result]
+              b2.use ConfigValidate
+              b2.use ConnectNiftyCloud
+              b2.use ResumeInstance
+            else
+              b2.use MessageNotCreated
+              next
+            end
+          end
+        end
+      end
+
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
       autoload :ConnectNiftyCloud, action_root.join("connect_niftycloud")
@@ -124,6 +172,9 @@ module VagrantPlugins
       autoload :TimedProvision, action_root.join("timed_provision")
       autoload :WarnNetworks, action_root.join("warn_networks")
       autoload :TerminateInstance, action_root.join("terminate_instance")
+      autoload :SuspendInstance, action_root.join("suspend_instance")
+      autoload :HaltInstance, action_root.join("suspend_instance")
+      autoload :ResumeInstance, action_root.join("resume_instance")
     end
   end
 end
