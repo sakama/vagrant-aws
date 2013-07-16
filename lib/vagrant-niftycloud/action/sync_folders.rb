@@ -2,16 +2,12 @@ require "log4r"
 
 require "vagrant/util/subprocess"
 
-require "vagrant/util/scoped_hash_override"
-
 module VagrantPlugins
   module NiftyCloud
     module Action
       # This middleware uses `rsync` to sync the folders over to the
       # NiftyCloud instance.
       class SyncFolders
-        include Vagrant::Util::ScopedHashOverride
-
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant_niftycloud::action::sync_folders")
@@ -21,45 +17,47 @@ module VagrantPlugins
           @app.call(env)
 
           ssh_info = env[:machine].ssh_info
-
           env[:machine].config.vm.synced_folders.each do |id, data|
-            data = scoped_hash_override(data, :niftycloud)
+            begin
+              # Ignore disabled shared folders
+              next if data[:disabled]
 
-            # Ignore disabled shared folders
-            next if data[:disabled]
+              hostpath  = File.expand_path(data[:hostpath], env[:root_path])
+              guestpath = data[:guestpath]
 
-            hostpath  = File.expand_path(data[:hostpath], env[:root_path])
-            guestpath = data[:guestpath]
+              # Make sure there is a trailing slash on the host path to
+              # avoid creating an additional directory with rsync
+              hostpath = "#{hostpath}/" if hostpath !~ /\/$/
 
-            # Make sure there is a trailing slash on the host path to
-            # avoid creating an additional directory with rsync
-            hostpath = "#{hostpath}/" if hostpath !~ /\/$/
+              env[:ui].info(I18n.t("vagrant_niftycloud.rsync_folder",
+                                  :hostpath => hostpath,
+                                  :guestpath => guestpath))
 
-            env[:ui].info(I18n.t("vagrant_niftycloud.rsync_folder",
-                                :hostpath => hostpath,
-                                :guestpath => guestpath))
+              # Create the guest path
+              env[:machine].communicate.sudo("mkdir -p '#{guestpath}'")
+              env[:machine].communicate.sudo(
+                "chown #{ssh_info[:username]} '#{guestpath}'")
 
-            # TODO 通常vagrantはvagrantユーザで接続するのがニフティクラウドはデフォルトがroot接続なので
-            # このプロセスは省く。Redhat系以外のUbuntu等他のOS/ディストリビューションの場合の確認必要
-            # Create the guest path
-            # env[:machine].communicate.sudo("mkdir -p '#{guestpath}'")
-            # env[:machine].communicate.sudo(
-            #  "chown #{ssh_info[:username]} '#{guestpath}'")
+              # Rsync over to the guest path using the SSH info
+              command = [
+                "rsync", "--verbose", "--archive", "-z",
+                "--exclude", ".vagrant/",
+                "-e", "ssh -p #{ssh_info[:port]} -o StrictHostKeyChecking=no -i '#{ssh_info[:private_key_path]}'",
+                hostpath,
+                "#{ssh_info[:username]}@#{ssh_info[:host]}:#{guestpath}"]
 
-            # Rsync over to the guest path using the SSH info
-            command = [
-              "rsync", "--verbose", "--archive", "-z",
-              "--exclude", ".vagrant/",
-              "-e", "ssh -p #{ssh_info[:port]} -o StrictHostKeyChecking=no -i '#{ssh_info[:private_key_path]}'",
-              hostpath,
-              "#{ssh_info[:username]}@#{ssh_info[:host]}:#{guestpath}"]
-
-            r = Vagrant::Util::Subprocess.execute(*command)
-            if r.exit_code != 0
+              r = Vagrant::Util::Subprocess.execute(*command)
+              if r.exit_code != 0
+                raise Errors::RsyncError,
+                  :guestpath => guestpath,
+                  :hostpath => hostpath,
+                  :stderr => r.stderr
+              end
+            rescue => e
               raise Errors::RsyncError,
                 :guestpath => guestpath,
                 :hostpath => hostpath,
-                :stderr => r.stderr
+                :stderr => e.message
             end
           end
         end
