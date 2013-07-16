@@ -5,7 +5,7 @@
 [Vagrant](http://www.vagrantup.com) 1.2以降のバージョンで[ニフティクラウド](http://cloud.nifty.com/)
 を操作するためのprovider機能を追加するプラグインです。
 
-Vagrantでニフティクラウド上のサーバインスタンスの制御や[Chef](http://www.opscode.com/chef/) / [Puppet](https://puppetlabs.com/) / [Fabric](http://docs.fabfile.org/)等を使ったサーバのprovisioningが可能となります。
+Vagrantでニフティクラウド上のサーバインスタンスの制御や[Chef](http://www.opscode.com/chef/)や[Puppet](https://puppetlabs.com/) 等を使ったサーバのprovisioningが可能となります。
 
 **注意:** このプラグインはVagrant 1.2以降に対応しています。
 
@@ -13,7 +13,7 @@ Vagrantでニフティクラウド上のサーバインスタンスの制御や[
 
 * ニフティクラウド上のサーバインスタンスの起動
 * Vagrantから起動したインスタンスへのSSH
-* Chef/Puppet/Fabric等を使用したインスタンスのprovisioning
+* Chef/Puppet等を使用したインスタンスのprovisioning
 * `rsync`を使用したcookbook等の転送
 
 ## Quick Start
@@ -200,7 +200,7 @@ Vagrantの`config.vm.network`で設定可能なネットワーク機能につい
 
 以下のようにニフティクラウドの[サーバ起動時スクリプト](http://cloud.nifty.com/service/svscript.htm)を使用したインスタンスの立ち上げが可能です。
 
-ChefやFabricを使って立ち上げる場合、一般的には指定しないことが多いと思います。
+Chef等を使って立ち上げる場合、一般的には指定しないことが多いと思います。
 
 ```
 Vagrant.configure("2") do |config|
