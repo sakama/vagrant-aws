@@ -48,7 +48,7 @@ module VagrantPlugins
             :availability_zone        => zone,
             :instance_type            => instance_type,
             :image_id                 => image_id,
-            :key_name                 => key_name,
+            :key_name                 => zone_config.key_name,
             :password                 => 'password',
             :user_data                => user_data,
             :accounting_type          => 2, #従量課金
@@ -69,6 +69,9 @@ module VagrantPlugins
               :message => e.message
           rescue NIFTY::ArgumentError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
+              :message => e.message
+          rescue NIFTY::ResponseFormatError => e
+            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseFormatError,
               :message => e.message
           rescue NIFTY::ResponseError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseError,

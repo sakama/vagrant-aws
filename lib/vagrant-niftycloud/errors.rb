@@ -19,6 +19,10 @@ module VagrantPlugins
         error_key(:niftycloud_response_error)
       end
 
+      class NiftyCloudResponseFormatError < VagrantNiftyCloudError
+        error_key(:niftycloud_response_format_error)
+      end
+
       class InstanceReadyTimeout < VagrantNiftyCloudError
         error_key(:instance_ready_timeout)
       end

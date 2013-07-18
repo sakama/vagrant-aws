@@ -57,6 +57,11 @@ en:
 
         %{message}
 
+      niftycloud_response_format_error: |-
+        Could Not Parse Response of Nifty Cloud API
+
+        %{message}
+
       rsync_error: |-
         There was an error when attemping to rsync a share folder.
         Please inspect the error message below for more info.

@@ -40,6 +40,9 @@ module VagrantPlugins
           rescue NIFTY::ArgumentError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
               :message => e.message
+          rescue NIFTY::ResponseFormatError => e
+            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseFormatError,
+              :message => e.message
           rescue NIFTY::ResponseError => e
             ui.error("Could not locate server '#{env[:machine].id}'.  Please verify it was provisioned in the current zone.")
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseError,

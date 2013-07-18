@@ -42,6 +42,9 @@ module VagrantPlugins
           rescue NIFTY::ArgumentError => e
             raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
               :message => e.message
+          rescue NIFTY::ResponseFormatError => e
+            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseFormatError,
+              :message => e.message
           rescue NIFTY::ResponseError => e
             machine.id = nil
             return :not_created

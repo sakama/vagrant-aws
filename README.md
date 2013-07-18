@@ -90,7 +90,7 @@ Vagrant.configure("2") do |config|
 
     niftycloud.image_id = "26"
     niftycloud.key_name = "<YOUR SSH KEY NAME>"
-    override.ssh.username = "root"
+    override.ssh.username = "vagrant"
     override.ssh.private_key_path = "PATH TO YOUR PRIVATE KEY"
   end
 end
@@ -191,7 +191,7 @@ Vagrant.configure("2") do |config|
     niftycloud.zone = "east-12"
     niftycloud.key_name = "vagrantkey"
     niftycloud.firewall = "test"
-    override.ssh.username = "root"
+    override.ssh.username = "vagrant"
     override.ssh.private_key_path = "/path/to/private_key.pem"
 
     # シンプルな書き方
