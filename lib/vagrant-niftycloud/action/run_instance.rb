@@ -20,12 +20,9 @@ module VagrantPlugins
 
           # Get the zone we're going to booting up in
           zone = env[:machine].provider_config.zone
-
           # Get the configs
-          # TODO 開発フェーズなのでinstance_idを固定にしている
-          # Vagrantfileで設定できるようにすべきか、その場合Vagrantfileを共有している環境では同じIDでサーバ立てるとエラーになることを考慮する
-          instance_id              = 'test2'
           zone_config              = env[:machine].provider_config.get_zone_config(zone)
+          instance_id              = zone_config.instance_id.nil? ? get_instance_id(5) : zone_config.instance_id
           image_id                 = zone_config.image_id
           zone                     = zone_config.zone
           instance_type            = zone_config.instance_type
@@ -49,7 +46,6 @@ module VagrantPlugins
             :instance_type            => instance_type,
             :image_id                 => image_id,
             :key_name                 => zone_config.key_name,
-            :password                 => 'password',
             :user_data                => user_data,
             :accounting_type          => 2, #従量課金
             :disable_api_termination  => false #APIから即terminate可
@@ -124,6 +120,16 @@ module VagrantPlugins
           destroy_env[:config_validate] = false
           destroy_env[:force_confirm_destroy] = true
           env[:action_runner].run(Action.action_destroy, destroy_env)
+        end
+
+        def get_instance_id(length)
+          chars = ("a".."z").to_a + (0..9).to_a
+          result = "vagrant"
+          uid = ""
+          length.times do
+            uid << chars[rand(chars.length)]
+          end
+          result << uid.capitalize!
         end
       end
     end

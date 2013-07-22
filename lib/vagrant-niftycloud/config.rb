@@ -11,6 +11,11 @@ module VagrantPlugins
       # The ID of the AMI to use.
       #
       # @return [String]
+      attr_accessor :instance_id
+
+      # The ID of the AMI to use.
+      #
+      # @return [String]
       attr_accessor :image_id
 
       # The zone to launch the instance into. If nil, it will
@@ -52,8 +57,9 @@ module VagrantPlugins
 
       def initialize(zone_specific=false)
         @access_key_id      = UNSET_VALUE
+        @instance_id        = UNSET_VALUE
         @image_id           = UNSET_VALUE
-        @zone  = UNSET_VALUE
+        @zone               = UNSET_VALUE
         @instance_ready_timeout = UNSET_VALUE
         @instance_type      = UNSET_VALUE
         @key_name           = UNSET_VALUE
@@ -130,6 +136,8 @@ module VagrantPlugins
         # will default to nil if the environment variables are not present.
         @access_key_id     = ENV['NIFTY_ACCESS_KEY'] if @access_key_id     == UNSET_VALUE
         @secret_access_key = ENV['NIFTY_SECRET_KEY'] if @secret_access_key == UNSET_VALUE
+
+        @instance_id = nil if @instance_id == UNSET_VALUE
 
         # AMI must be nil, since we can't default that
         @image_id = nil if @image_id == UNSET_VALUE
