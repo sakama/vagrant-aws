@@ -57,6 +57,7 @@ OSイメージ作成の手順は以下のようになります。
 # su - vagrant
 ## vagrantユーザで実行
 $ ssh-keygen -t rsa
+$ cd .ssh
 $ mv id_rsa.pub authorized_keys(id_rsaをローカルに保存する=接続する際のSSH秘密鍵となる)
 
 ## rootで実行
@@ -64,6 +65,9 @@ $ mv id_rsa.pub authorized_keys(id_rsaをローカルに保存する=接続す�
 # Defaults specificationをコメントアウト
 # 最終行に以下を追加
 # vagrant        ALL=(ALL)       NOPASSWD: ALL
+
+# chef-soloやchef-clientをインストールしておく場合
+# curl -L https://www.opscode.com/chef/install.sh | sudo bash
 ```
 
 作成したイメージのimage_idをVagrantfile内で指定する必要があります。

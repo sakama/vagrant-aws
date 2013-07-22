@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "dummy"
+
+  config.vm.provider :niftycloud do |niftycloud, override|
+    niftycloud.access_key_id = ENV["NIFTY_CLOUD_ACCESS_KEY"] || "foo"
+    niftycloud.secret_access_key = ENV["NIFTY_CLOUD_SECRET_KEY"] || "bar"
+    niftycloud.image_id = "26"
+    niftycloud.zone= "east-12"
+    niftycloud.instance_type= "mini"
+    niftycloud.key_name = "sshkeypairname"
+    niftycloud.firewall = "vagrantservers"
+    niftycloud.password = "password"
+    override.ssh.username = "vagrant"
+    override.ssh.private_key_path = "/path/to/vagrant_private.pem"
+
+    config.vm.provision :chef_solo do |chef|
+      chef_root = '/path/to/chef_root'
+      chef.cookbooks_path = "#{chef_root}/chef-repo/cookbooks"
+      chef.roles_path = "#{chef_root}/chef-repo/roles"
+      chef.data_bags_path = "#{chef_root}/chef-repo/data_bags"
+      chef.json = {
+        :mysql => {
+          :server_root_password => "p@ssw0rd",
+          :server_repl_password => "p@ssw0rd",
+          :server_debian_password => "p@ssw0rd"
+        }
+      }
+    end
+  end
+end
