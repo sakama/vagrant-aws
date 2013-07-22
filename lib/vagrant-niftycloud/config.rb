@@ -50,6 +50,11 @@ module VagrantPlugins
       # @return [Array<String>]
       attr_accessor :firewall
 
+      # The password string
+      #
+      # @return [String]
+      attr_accessor :password
+
       # The user data string
       #
       # @return [String]
@@ -65,6 +70,7 @@ module VagrantPlugins
         @key_name           = UNSET_VALUE
         @secret_access_key  = UNSET_VALUE
         @firewall           = UNSET_VALUE
+        @password           = UNSET_VALUE
         @user_data          = UNSET_VALUE
 
         # Internal state (prefix with __ so they aren't automatically
@@ -155,6 +161,9 @@ module VagrantPlugins
 
         # The firewall are empty by default.
         @firewall = [] if @firewall == UNSET_VALUE
+
+        # The password are empty by default.
+        @password = [] if @password == UNSET_VALUE
 
         # User Data is nil by default
         @user_data = nil if @user_data == UNSET_VALUE

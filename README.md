@@ -90,6 +90,7 @@ Vagrant.configure("2") do |config|
 
     niftycloud.image_id = "26"
     niftycloud.key_name = "<YOUR SSH KEY NAME>"
+    niftycloud.password = "<ROOT PASSWORD YOU WANT TO SET>"
     override.ssh.username = "vagrant"
     override.ssh.private_key_path = "PATH TO YOUR PRIVATE KEY"
   end
@@ -102,7 +103,7 @@ end
 
 ```
 
-# サーバ立ちあげ、provisioningの実行
+# サーバ立ち上げ、provisioningの実行
 $ vagrant up --provider=niftycloud
 
 # 立ち上げたサーバへのprovisioningの実行
@@ -161,6 +162,7 @@ boxフォーマットには`metadata.json`が必要です。
 * `instance_type` - サーバタイプ。例)"small2"。指定がない場合のデフォルト値は"mini"です。
 * `secret_access_key` - ニフティクラウドAPI経由でアクセスするためのSecretAccessKey。[コントロールパネルから取得した値](http://cloud.nifty.com/help/status/api_key.htm)を指定して下さい。
 * `firewall` - Firewall名。
+* `password` - rootのパスワードとして設定したい値
 
 上記のパラメータはVagrantfile中で以下のように設定することができます。
 
@@ -191,6 +193,7 @@ Vagrant.configure("2") do |config|
     niftycloud.zone = "east-12"
     niftycloud.key_name = "vagrantkey"
     niftycloud.firewall = "test"
+    niftycloud.password = "password"
     override.ssh.username = "vagrant"
     override.ssh.private_key_path = "/path/to/private_key.pem"
 

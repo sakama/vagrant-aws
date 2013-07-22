@@ -17,7 +17,6 @@ module VagrantPlugins
         def call(env)
           # Initialize metrics if they haven't been
           env[:metrics] ||= {}
-
           # Get the zone we're going to booting up in
           zone = env[:machine].provider_config.zone
           # Get the configs
@@ -28,7 +27,8 @@ module VagrantPlugins
           instance_type            = zone_config.instance_type
           key_name                 = zone_config.key_name,
           firewall                 = zone_config.firewall,
-          user_data                = zone_config.user_data
+          user_data                = zone_config.user_data,
+          password                 = zone_config.password
 
           # Launch!
           env[:ui].info(I18n.t("vagrant_niftycloud.launching_instance"))
@@ -47,6 +47,7 @@ module VagrantPlugins
             :image_id                 => image_id,
             :key_name                 => zone_config.key_name,
             :user_data                => user_data,
+            :password                 => password,
             :accounting_type          => 2, #従量課金
             :disable_api_termination  => false #APIから即terminate可
           }
@@ -123,13 +124,10 @@ module VagrantPlugins
         end
 
         def get_instance_id(length)
-          chars = ("a".."z").to_a + (0..9).to_a
           result = "vagrant"
-          uid = ""
-          length.times do
-            uid << chars[rand(chars.length)]
-          end
+          uid = (("a".."z").to_a + (0..9).to_a).shuffle[0..length].join
           result << uid.capitalize!
+          result
         end
       end
     end
