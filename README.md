@@ -1,6 +1,8 @@
 # Vagrant NiftyCloud Provider
 
-`開発中！8月頭目処に処理をブラッシュアップします`
+`開発中！8月頭を目処に処理をブラッシュアップします`
+
+`リージョン・ゾーン周り以外のロジックはほぼ問題ないと思います`
 
 [Vagrant](http://www.vagrantup.com) 1.2以降のバージョンで[ニフティクラウド](http://cloud.nifty.com/)
 を操作するためのprovider機能を追加するプラグインです。
@@ -47,6 +49,9 @@ Vagrant自体の仕様により、以下の制約があります。
 上記条件をクリアしたサーバイメージをプライベートイメージ等で用意する必要があります。
 
 OSイメージ作成の手順は以下のようになります。
+chef-soloやchef-clientを予めインストールしておくかどうかはケースバイケースです。
+
+vagrant up時に[vagrant-omnibus](https://github.com/schisamo/vagrant-omnibus)を使うという手もあります。
 
 ```
 ## rootで実行
@@ -63,10 +68,10 @@ $ mv id_rsa.pub authorized_keys(id_rsaをローカルに保存する=接続す�
 ## rootで実行
 # visudo
 # Defaults specificationをコメントアウト
-# 最終行に以下を追加
+## 最終行に以下を追加
 # vagrant        ALL=(ALL)       NOPASSWD: ALL
 
-# chef-soloやchef-clientをインストールしておく場合
+## chef-soloやchef-clientをインストールしておく場合
 # curl -L https://www.opscode.com/chef/install.sh | sudo bash
 ```
 
@@ -77,6 +82,7 @@ image_idについては[ニフティクラウドSDK for Ruby](http://cloud.nifty
 ### Vagrantfileの作成
 
 Vagrantfileを以下のような内容で作成します。
+サンプルのVagrantfile ([Chef用](https://github.com/sakama/vagrant-niftycloud/blob/master/Vagrantfile.chef.sample)) も参考にして下さい。
 
 Vagrantfileの`config.vm.provider`ブロックで各種パラメータを指定して下さい。
 
@@ -154,13 +160,14 @@ boxフォーマットには`metadata.json`が必要です。
 以下の様なパラメータに対応しています。
 
 
-* `access_key_id` - ニフティクラウドのAccessKey。[コントロールパネルから取得した値](http://cloud.nifty.com/help/status/api_key.htm)を指定して下さい。
+* `access_key_id` - ニフティクラウドのAccessKey。[コントロールパネルから取得した値](http://cloud.nifty.com/help/status/api_key.htm)を指定。
+* `secret_access_key` - ニフティクラウドAPI経由でアクセスするためのSecretAccessKey。[コントロールパネルから取得した値](http://cloud.nifty.com/help/status/api_key.htm)を指定して下さい。
+* `instance_id` - サーバ名。指定がない場合ランダムなIDを付与。Vagrantfileを複数人で共有している場合、指定なしがいいかもしれません(同じサーバ名を持つサーバは立てられないため)
 * `image_id` - サーバ立ち上げ時に指定するimage_id。ニフティクラウド公式のOSイメージでは動作しません。
 * `key_name` - サーバ接続時に使用するSSHキー名。[コントロールパネルで設定した値](http://cloud.nifty.com/help/netsec/ssh_key.htm)を指定して下さい。
 * `zone` - ニフティクラウドのゾーン。例)"east-12"
-* `instance_ready_timeout` - インスタンス起動実行からタイムアウトとなるまでの秒数。デフォルトは300秒です。
-* `instance_type` - サーバタイプ。例)"small2"。指定がない場合のデフォルト値は"mini"です。
-* `secret_access_key` - ニフティクラウドAPI経由でアクセスするためのSecretAccessKey。[コントロールパネルから取得した値](http://cloud.nifty.com/help/status/api_key.htm)を指定して下さい。
+* `instance_ready_timeout` - インスタンス起動実行からタイムアウトとなるまでの秒数。デフォルトは300秒。
+* `instance_type` - サーバタイプ。例)"small2"。指定がない場合のデフォルト値は"mini"。
 * `firewall` - Firewall名。
 * `password` - rootのパスワードとして設定したい値
 
@@ -224,7 +231,7 @@ Vagrantの`config.vm.network`で設定可能なネットワーク機能につい
 
 フォルダの同期についてはshell、chef、puppetといったVagrantのprovisionersを動作させるための最低限のサポートとなります。
 
-`vagrant up`、`vagrant reload`、`vagrant provision`コマンドが実行された場合、
+`vagrant up`、`vagrant provision`コマンドが実行された場合、
 このプラグインは`rsync`を使用しSSH経由でローカル→リモートサーバへの単方向同期を行います。
 
 
