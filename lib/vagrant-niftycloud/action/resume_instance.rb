@@ -23,6 +23,7 @@ module VagrantPlugins
             while server.instanceState.name == 'pending'
               sleep 5
               server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
+              env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
             end
 
             if server.instanceState.name != 'running'
@@ -30,6 +31,7 @@ module VagrantPlugins
               while server.instanceState.name != 'running'
                 sleep 5
                 server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
+                env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
               end
             end
 

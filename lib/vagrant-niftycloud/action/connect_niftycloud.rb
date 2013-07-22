@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 require "NIFTY"
 require "log4r"
-NIFTY::LOG.level = Logger::DEBUG
+
+if !ENV["VAGRANT_LOG"].nil? && ENV["VAGRANT_LOG"].upcase=='DEBUG'
+  NIFTY::LOG.level = Logger::DEBUG
+end
 
 module VagrantPlugins
   module NiftyCloud

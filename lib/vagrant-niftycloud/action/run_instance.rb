@@ -88,6 +88,7 @@ module VagrantPlugins
               count += 1 
               sleep 5
               server = env[:niftycloud_compute].describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
+              env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
               if count > tries
                 # Delete the instance
                 terminate(env)
