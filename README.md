@@ -68,9 +68,9 @@ $ mv id_rsa.pub authorized_keys(id_rsaをローカルに保存する=接続す�
 
 ## rootで実行
 # visudo
-# Defaults specificationをコメントアウト
+Defaults requirettyをコメントアウト
 ## 最終行に以下を追加
-# vagrant        ALL=(ALL)       NOPASSWD: ALL
+vagrant        ALL=(ALL)       NOPASSWD: ALL
 
 ## chef-soloやchef-clientをインストールしておく場合
 # curl -L https://www.opscode.com/chef/install.sh | sudo bash
