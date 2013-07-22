@@ -1,6 +1,6 @@
 # Vagrant NiftyCloud Provider
 
-`開発中！まだ動作しません！！`
+`開発中！8月頭目処に処理をブラッシュアップします`
 
 [Vagrant](http://www.vagrantup.com) 1.2以降のバージョンで[ニフティクラウド](http://cloud.nifty.com/)
 を操作するためのprovider機能を追加するプラグインです。
@@ -26,16 +26,12 @@ Chef以外の動作確認は行なっていませんが、プラグインで行�
 
 vagrant upを実行する前に通常のVagrant使用時と同じようにboxファイルをVagrantに追加する必要があります。
 
-自分でboxファイルを作成するかこちらで用意しているboxファイルを使用して、任意の名前でダミーのboxを追加して下さい。
+自分でboxファイルを作成するか、こちらで用意しているboxファイルを使用して、任意の名前でダミーのboxを追加して下さい。
 
 ```
-$ git clone https://github.com/sakama/vagrant-niftycloud.git
-$ cd vagrant-niftycloud
-$ bundle install
-$ bundle exec rake build
-$ vagrant plugin install pkg/vagrant-niftycloud-0.1.0.dev.gem
+$ vagrant plugin install vagrant-niftycloud
 $ vagrant box add dummy https://github.com/sakama/vagrant-niftycloud/raw/master/dummy.box
-...
+
 ```
 
 ### OSイメージの作成
