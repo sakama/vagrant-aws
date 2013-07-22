@@ -49,6 +49,7 @@ Vagrant自体の仕様により、以下の制約があります。
 上記条件をクリアしたサーバイメージをプライベートイメージ等で用意する必要があります。
 
 OSイメージ作成の手順は以下のようになります。
+
 chef-soloやchef-clientを予めインストールしておくかどうかはケースバイケースです。
 
 vagrant up時に[vagrant-omnibus](https://github.com/schisamo/vagrant-omnibus)を使うという手もあります。
@@ -150,9 +151,11 @@ SSH接続やcookbook等を使ったサーバのprovisioningに失敗する場合
 
 こちらのディレクトリにはboxの作成方法についてのドキュメントも置いてあります。
 
-boxフォーマットには`metadata.json`が必要です。
+boxフォーマットは`metadata.json`と`Vagrantfile`をtar.gzで圧縮したものです。
 
-このjsonファイル中に指定された値は`Vagrantfile` と同様に、providerとしてniftycloudを指定した場合のデフォルト値として扱われます。
+VirtualBoxやVMWare Fusion向けの数GBあるboxと比較すると遙かに軽量で、デフォルト設定を記述する場所という位置付けとなっています。
+
+`Vagrantfile` で指定された項目・値はproviderとしてniftycloudを指定した場合のデフォルト値として扱わるため、複数メンバーで作業する場合等はオリジナルのboxを作成しておくと便利です。
 
 
 ## 設定
