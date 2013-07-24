@@ -140,8 +140,8 @@ module VagrantPlugins
       def finalize!
         # Try to get access keys from standard NiftyCloud environment variables; they
         # will default to nil if the environment variables are not present.
-        @access_key_id     = ENV['NIFTY_ACCESS_KEY'] if @access_key_id     == UNSET_VALUE
-        @secret_access_key = ENV['NIFTY_SECRET_KEY'] if @secret_access_key == UNSET_VALUE
+        @access_key_id     = ENV['NIFTY_CLOUD_ACCESS_KEY'] if @access_key_id     == UNSET_VALUE
+        @secret_access_key = ENV['NIFTY_CLOUD_SECRET_KEY'] if @secret_access_key == UNSET_VALUE
 
         @instance_id = nil if @instance_id == UNSET_VALUE
 
