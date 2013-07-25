@@ -19,7 +19,7 @@ describe VagrantPlugins::NiftyCloud::Config do
     its("image_id")          { should be_nil }
     its("key_name")          { should be_nil }
     its("zone")              { should be_nil }
-    its("instance_ready_timeout") { should == 120 }
+    its("instance_ready_timeout") { should == 300 }
     its("instance_type")     { should == "mini" }
     its("secret_access_key") { should be_nil }
     its("firewall")          { should == [] }
@@ -57,8 +57,8 @@ describe VagrantPlugins::NiftyCloud::Config do
 
     context "with NiftyCloud credential environment variables" do
       before :each do
-        ENV.stub(:[]).with("NIFTY_ACCESS_KEY").and_return("access_key")
-        ENV.stub(:[]).with("NIFTY_SECRET_KEY").and_return("secret_key")
+        ENV.stub(:[]).with("NIFTY_CLOUD_ACCESS_KEY").and_return("access_key_id")
+        ENV.stub(:[]).with("NIFTY_CLOUD_SECRET_KEY").and_return("secret_access_key")
       end
 
       subject do
@@ -67,8 +67,8 @@ describe VagrantPlugins::NiftyCloud::Config do
         end
       end
 
-      its("access_key_id")     { should == "access_key" }
-      its("secret_access_key") { should == "secret_key" }
+      its("access_key_id")     { should == "access_key_id" }
+      its("secret_access_key") { should == "secret_access_key" }
     end
   end
 
@@ -87,6 +87,11 @@ describe VagrantPlugins::NiftyCloud::Config do
       instance.secret_access_key = config_secret_access_key
     end
 
+    it "should raise an exception if not finalized" do
+      expect { instance.get_zone_config("east-12") }.
+        to raise_error
+    end
+
     context "with no specific config set" do
       subject do
         # Set the values on the top-level object
@@ -95,6 +100,7 @@ describe VagrantPlugins::NiftyCloud::Config do
         # Finalize so we can get the zone config
         instance.finalize!
 
+        instance.get_zone_config("east-12")
       end
 
       its("access_key_id")     { should == config_access_key_id }
@@ -105,6 +111,21 @@ describe VagrantPlugins::NiftyCloud::Config do
     end
 
     context "with a specific config set" do
+      let(:zone_name) { "hashi-zone" }
+
+      subject do
+        # Set the values on a specific region
+        instance.zone_config zone_name do |config|
+          set_test_values(config)
+        end
+
+        # Finalize so we can get the region config
+        instance.finalize!
+
+        # Get the region
+        instance.get_zone_config(zone_name)
+      end
+
       its("access_key_id")     { should == config_access_key_id }
       its("image_id")          { should == config_image_id }
       its("key_name")          { should == config_key_name }
@@ -144,11 +165,6 @@ describe VagrantPlugins::NiftyCloud::Config do
       end
 
       its("image_id") { should == "child" }
-    end
-
-    describe "merging" do
-      let(:first)  { described_class.new }
-      let(:second) { described_class.new }
     end
   end
 end
