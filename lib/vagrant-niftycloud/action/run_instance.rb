@@ -125,10 +125,9 @@ module VagrantPlugins
         end
 
         def get_instance_id(length)
-          result = "vagrant"
+          instance_id = "vagrant"
           uid = (("a".."z").to_a + (0..9).to_a).shuffle[0..length].join
-          result << uid.capitalize!
-          result
+          instance_id << uid.capitalize
         end
       end
     end
