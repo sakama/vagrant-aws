@@ -4,6 +4,7 @@ require "vagrant-niftycloud/version"
 Gem::Specification.new do |s|
   s.name          = "vagrant-niftycloud"
   s.version       = VagrantPlugins::NiftyCloud::VERSION
+  s.license       = 'MIT'
   s.platform      = Gem::Platform::RUBY
   s.authors       = "Satoshi Akama"
   s.email         = "satoshiakama@gmail.com"
