@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform      = Gem::Platform::RUBY
   s.authors       = "Satoshi Akama"
   s.email         = "satoshiakama@gmail.com"
-  s.homepage      = "http://www.vagrantup.com"
+  s.homepage      = "https://github.com/sakama/vagrant-niftycloud"
   s.summary       = "Enables Vagrant to manage machines in Nifty Cloud"
   s.description   = "Enables Vagrant to manage machines in Nifty Cloud."
 
