@@ -37,16 +37,16 @@ module VagrantPlugins
             @logger.info("Connecting to NiftyCloud...")
             env[:niftycloud_compute] = NIFTY::Cloud::Base.new(niftycloud_config)
           rescue NIFTY::ConfigurationError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudConfigurationError,
+            raise Errors::NiftyCloudConfigurationError,
               :message => e.message
           rescue NIFTY::ArgumentError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
+            raise Errors::NiftyCloudArgumentError,
               :message => e.message
           rescue NIFTY::ResponseFormatError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseFormatError,
+            raise Errors::NiftyCloudResponseFormatError,
               :message => e.message
           rescue NIFTY::ResponseError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseError,
+            raise Errors::NiftyCloudResponseError,
               :code    => e.error_code,
               :message => e.error_message
           end

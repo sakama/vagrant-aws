@@ -28,8 +28,7 @@ module VagrantPlugins
 
             attribute = env[:niftycloud_compute].describe_instance_attribute(:instance_id => env[:machine].id, :attribute => 'disableApiTermination')
             if attribute.disableApiTermination.value == 'false'
-              # AWSのように即terminateができないため念のため一旦stopする
-              # TODO API経由でのterminate不可の場合を考慮する必要があるか
+              # AWSのように即terminateができないため一旦stopする
               server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
               if server.instanceState.name != 'stopped'
                 env[:niftycloud_compute].stop_instances(:instance_id => env[:machine].id, :force => true)
@@ -50,10 +49,10 @@ module VagrantPlugins
               @app.call(env)
             end
           rescue NIFTY::ConfigurationError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudConfigurationError,
+            raise Errors::NiftyCloudConfigurationError,
               :message => e.message
           rescue NIFTY::ArgumentError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
+            raise Errors::NiftyCloudArgumentError,
               :message => e.message
           end
         end

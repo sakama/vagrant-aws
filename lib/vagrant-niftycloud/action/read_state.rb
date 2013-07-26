@@ -37,13 +37,13 @@ module VagrantPlugins
               return state.to_sym
             end
           rescue NIFTY::ConfigurationError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudConfigurationError,
+            raise Errors::NiftyCloudConfigurationError,
               :message => e.message
           rescue NIFTY::ArgumentError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
+            raise Errors::NiftyCloudArgumentError,
               :message => e.message
           rescue NIFTY::ResponseFormatError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseFormatError,
+            raise Errors::NiftyCloudResponseFormatError,
               :message => e.message
           rescue NIFTY::ResponseError => e
             machine.id = nil

@@ -62,16 +62,16 @@ module VagrantPlugins
             # インスタンス立ち上げ開始
             server = env[:niftycloud_compute].run_instances(options).instancesSet.item.first
           rescue NIFTY::ConfigurationError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudConfigurationError,
+            raise Errors::NiftyCloudConfigurationError,
               :message => e.message
           rescue NIFTY::ArgumentError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
+            raise Errors::NiftyCloudArgumentError,
               :message => e.message
           rescue NIFTY::ResponseFormatError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseFormatError,
+            raise Errors::NiftyCloudResponseFormatError,
               :message => e.message
           rescue NIFTY::ResponseError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseError,
+            raise Errors::NiftyCloudResponseError,
               :code    => e.error_code,
               :message => e.error_message
           end

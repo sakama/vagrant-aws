@@ -1,8 +1,9 @@
 # vagrant-niftycloud
 
 [![Gem Version](https://badge.fury.io/rb/vagrant-niftycloud.png)](http://badge.fury.io/rb/vagrant-niftycloud)
-[![Build Status](https://travis-ci.org/sakama/vagrant-niftycloud.png?branch=master)](https://travis-ci.org/sakama/vagrant-niftycloud)
 [![Dependency Status](https://gemnasium.com/sakama/vagrant-niftycloud.png)](https://gemnasium.com/sakama/vagrant-niftycloud)
+[![Build Status](https://travis-ci.org/sakama/vagrant-niftycloud.png)](https://travis-ci.org/sakama/vagrant-niftycloud)
+[![Code Climate](https://codeclimate.com/repos/51f1e961c7f3a36b13040695/badges/fa569c6c9d1c7205143a/gpa.png)](https://codeclimate.com/repos/51f1e961c7f3a36b13040695/feed)
 
 `開発中！8月頭を目処に処理をブラッシュアップします`
 
