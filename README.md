@@ -1,13 +1,16 @@
-# Vagrant NiftyCloud Provider
+# vagrant-niftycloud
+
+[![Gem Version](https://badge.fury.io/rb/vagrant-niftycloud.png)](http://badge.fury.io/rb/vagrant-niftycloud)
+[![Build Status](https://travis-ci.org/sakama/vagrant-niftycloud.png?branch=master)](https://travis-ci.org/sakama/vagrant-niftycloud)
+[![Dependency Status](https://gemnasium.com/sakama/vagrant-niftycloud.png)](https://gemnasium.com/sakama/vagrant-niftycloud)
 
 `開発中！8月頭を目処に処理をブラッシュアップします`
 
 `リージョン・ゾーン周り以外のロジックはほぼ問題ないと思います`
 
-[Vagrant](http://www.vagrantup.com) 1.2以降のバージョンで[ニフティクラウド](http://cloud.nifty.com/)
-を操作するためのprovider機能を追加するプラグインです。
+[Vagrant](http://www.vagrantup.com) 1.2以降のバージョンのproviderとして[ニフティクラウド](http://cloud.nifty.com/) を使えるようにするためのプラグインです。
 
-Vagrantでニフティクラウド上のサーバインスタンスの制御や[Chef](http://www.opscode.com/chef/)や[Puppet](https://puppetlabs.com/) 等を使ったサーバのprovisioningが可能となります。
+Vagrantでニフティクラウド上のサーバインスタンスの制御や、[Chef](http://www.opscode.com/chef/)や[Puppet](https://puppetlabs.com/) 等を使ったサーバのprovisioningが可能となります。
 
 Chef以外の動作確認は行なっていませんが、プラグインで行なっているのはSSH実行可能な状態にすることとrsyncによるファイル転送だけなので、Vagrantでサポートされているものであれば動作するのではないかと思います。
 
