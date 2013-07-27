@@ -1,3 +1,7 @@
+# 0.1.5 (July 27, 2013)
+
+* gemspecファイルのライセンス表示を追加
+
 # 0.1.4 (July 25, 2013)
 
 * Vagrantfileでinstance_idを指定せずにvagrant upした場合に、instance_id決定ロジックが can't convert nil into String を吐くケースがある問題を修正
