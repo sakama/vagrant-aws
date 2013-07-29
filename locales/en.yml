@@ -81,6 +81,10 @@ en:
         not created
       long_not_created: |-
         The Nifty Cloud instance is not created. Run `vagrant up` to create it.
+      short_creating: |-
+        creating
+      long_creating: |-
+        The Nifty Cloud instance is now creating. Please wait for process to finish
       short_running: |-
         running
       long_running: |-
