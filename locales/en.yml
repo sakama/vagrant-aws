@@ -35,7 +35,7 @@ en:
       image_id_required: |-
         An Image ID must be configured via "image_id"
       private_key_missing: |-
-        The specified private key for NiftyCloud could not be found
+        The specified private key for Nifty Cloud could not be found
       zone_required: |-
         A zone must be specified via "zone"
       secret_access_key_required: |-
@@ -43,12 +43,12 @@ en:
 
     errors:
       instance_ready_timeout: |-
-        The instance never became "ready" in NiftyCloud. The timeout currently
+        The instance never became "ready" in Nifty Cloud. The timeout currently
         set waiting for the instance to become ready is %{timeout} seconds.
         Please verify that the machine properly boots. If you need more time
-        set the `instance_ready_timeout` configuration on the NiftyCloud provider.
+        set the `instance_ready_timeout` configuration on the Nifty Cloud provider.
       niftycloud_response_error: |-
-        Response Error occured while connecting to  Nifty Cloud API
+        Response Error occured while connecting to Nifty Cloud API
 
         Error Code: %{code}
         %{message}
