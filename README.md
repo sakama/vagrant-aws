@@ -1,8 +1,9 @@
 # vagrant-niftycloud
 
 [![Gem Version](https://badge.fury.io/rb/vagrant-niftycloud.png)](http://badge.fury.io/rb/vagrant-niftycloud)
-[![Build Status](https://travis-ci.org/sakama/vagrant-niftycloud.png?branch=master)](https://travis-ci.org/sakama/vagrant-niftycloud)
 [![Dependency Status](https://gemnasium.com/sakama/vagrant-niftycloud.png)](https://gemnasium.com/sakama/vagrant-niftycloud)
+[![Build Status](https://travis-ci.org/sakama/vagrant-niftycloud.png)](https://travis-ci.org/sakama/vagrant-niftycloud)
+[![Code Climate](https://codeclimate.com/github/sakama/vagrant-niftycloud.png)](https://codeclimate.com/github/sakama/vagrant-niftycloud)
 
 `開発中！8月頭を目処に処理をブラッシュアップします`
 
@@ -29,7 +30,9 @@ Chef以外の動作確認は行なっていませんが、プラグインで行�
 
 まずVagrant 1.2以降をインストールして下さい。
 
-vagrant upを実行する前に通常のVagrant使用時と同じようにboxファイルをVagrantに追加する必要があります。
+Vagrantは1.1からgem経由ではなく[パッケージでのインストール](http://downloads.vagrantup.com/)に変わっているので注意してください。
+
+vagrant upを実行する前に、VirtualBox等でVagrantを使用する時と同じようにboxファイルをVagrantに追加する必要があります。
 
 自分でboxファイルを作成するか、こちらで用意しているboxファイルを使用して、任意の名前でダミーのboxを追加して下さい。
 
@@ -158,7 +161,7 @@ boxフォーマットは`metadata.json`と`Vagrantfile`をtar.gzで圧縮した�
 
 VirtualBoxやVMWare Fusion向けの数GBあるboxと比較すると遙かに軽量で、デフォルト設定を記述する場所という位置付けとなっています。
 
-`Vagrantfile` で指定された項目・値はproviderとしてniftycloudを指定した場合のデフォルト値として扱わるため、複数メンバーで作業する場合等はオリジナルのboxを作成しておくと便利です。
+`Vagrantfile` で指定された項目/値はproviderとしてniftycloudを指定した場合のデフォルト値として扱われるため、複数メンバーで作業する場合等はオリジナルのboxを作成しておくと便利です。
 
 
 ## 設定
@@ -269,4 +272,4 @@ $ bundle exec vagrant up --provider=niftycloud
 
 ## ライセンス
 
-[vagrant-aws](https://github.com/mitchellh/vagrant-aws) をベースに NIFTY Cloud 向けに修正を加えたものです。 オリジナルに準じて MITライセンス を適用します。
+[vagrant-aws](https://github.com/mitchellh/vagrant-aws) をベースにニフティクラウド向けに修正を加えたものです。 オリジナルに準じて MITライセンス を適用します。

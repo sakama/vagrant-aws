@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "log4r"
 
 module VagrantPlugins
@@ -24,20 +25,20 @@ module VagrantPlugins
           # 例外の定義は以下参照
           # http://cloud.nifty.com/api/sdk/rdoc/
           begin
-            server = niftycloud.describe_instances(:instance_id => machine.id).reservationSet.item.first.instancesSet.item.first
+            server = niftycloud.get(machine)
             # Read the DNS info
             return {
               :host => server.ipAddress,
               :port => 22
             }
           rescue NIFTY::ConfigurationError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudConfigurationError,
+            raise Errors::NiftyCloudConfigurationError,
               :message => e.message
           rescue NIFTY::ArgumentError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudArgumentError,
+            raise Errors::NiftyCloudArgumentError,
               :message => e.message
           rescue NIFTY::ResponseFormatError => e
-            raise VagrantPlugins::NiftyCloud::Errors::NiftyCloudResponseFormatError,
+            raise Errors::NiftyCloudResponseFormatError,
               :message => e.message
           rescue NIFTY::ResponseError => e
             # The machine can't be found
