@@ -75,6 +75,9 @@ module VagrantPlugins
               :code    => e.error_code,
               :message => e.error_message
           end
+
+          # Immediately save the ID since it is created at this point.
+          env[:machine].id = instance_id
             
           # リトライ回数。サーバステータスがrunningになるまで5秒のintervalでdescribe_instancesを実行するので
           # タイムアウト秒数/5を上限回数とする
@@ -97,9 +100,6 @@ module VagrantPlugins
               end
             end
           end
-          
-          # Immediately save the ID since it is created at this point.
-          env[:machine].id = instance_id
 
           # Terminate the instance if we were interrupted
           terminate(env) if env[:interrupted]
