@@ -1,3 +1,7 @@
+# 0.1.6 (July 29, 2013)
+
+* vagrant up直後にCtrl+Cで中断した場合に、vagrant statusでステータスが取得できない問題を修正
+
 # 0.1.5 (July 27, 2013)
 
 * gemspecファイルのライセンス表示を追加
