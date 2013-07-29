@@ -16,44 +16,24 @@ module VagrantPlugins
           # 例外の定義は以下参照
           # http://cloud.nifty.com/api/sdk/rdoc/
           begin
-            env[:ui].info(I18n.t("vagrant_niftycloud.terminating"))
-
-            # 起動直後等、terminate処理できないステータスの場合一旦待つ
-            server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
-            while server.instanceState.name == 'pending'
-              sleep 5
-              server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
-              env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
-            end
-
-            attribute = env[:niftycloud_compute].describe_instance_attribute(:instance_id => env[:machine].id, :attribute => 'disableApiTermination')
-            if attribute.disableApiTermination.value == 'false'
-              # AWSのように即terminateができないため一旦stopする
-              server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
-              if server.instanceState.name != 'stopped'
-                env[:niftycloud_compute].stop_instances(:instance_id => env[:machine].id, :force => true)
-                while server.instanceState.name != 'stopped'
-                  sleep 5
-                  server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
-                  env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
-                end
-              end
-            end
-
             # terminate処理
-            server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
-            if server.instanceState.name == 'stopped'
-              response = env[:niftycloud_compute].terminate_instances(:instance_id => env[:machine].id)
-              env[:machine].id = nil
+            response = env[:niftycloud_compute].delete(env)
+            env[:machine].id = nil
 
-              @app.call(env)
-            end
+            @app.call(env)
           rescue NIFTY::ConfigurationError => e
             raise Errors::NiftyCloudConfigurationError,
               :message => e.message
           rescue NIFTY::ArgumentError => e
             raise Errors::NiftyCloudArgumentError,
               :message => e.message
+          rescue NIFTY::ResponseFormatError => e
+            raise Errors::NiftyCloudResponseFormatError,
+              :message => e.message
+          rescue NIFTY::ResponseError => e
+            raise Errors::NiftyCloudResponseError,
+              :code    => e.error_code,
+              :message => e.error_message
           end
         end
       end

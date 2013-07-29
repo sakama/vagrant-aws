@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "log4r"
 
 module VagrantPlugins
@@ -24,7 +25,7 @@ module VagrantPlugins
           # 例外の定義は以下参照
           # http://cloud.nifty.com/api/sdk/rdoc/
           begin
-            server = niftycloud.describe_instances(:instance_id => machine.id).reservationSet.item.first.instancesSet.item.first
+            server = niftycloud.get(machine)
 
             state = server.instanceState.name
             case state

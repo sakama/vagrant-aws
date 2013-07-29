@@ -16,24 +16,7 @@ module VagrantPlugins
           # 例外の定義は以下参照
           # http://cloud.nifty.com/api/sdk/rdoc/
           begin
-            env[:ui].info(I18n.t("vagrant_niftycloud.suspending"))
-
-            # 起動直後等、stop処理できないステータスの場合一旦待つ
-            server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
-            while server.instanceState.name == 'pending'
-              sleep 5
-              server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
-              env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
-            end
-
-            if server.instanceState.name != 'stopped'
-              env[:niftycloud_compute].stop_instances(:instance_id => env[:machine].id, :force => false)
-              while server.instanceState.name != 'stopped'
-                sleep 5
-                server = env[:niftycloud_compute].describe_instances(:instance_id => env[:machine].id).reservationSet.item.first.instancesSet.item.first
-                env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
-              end
-            end
+            env[:niftycloud_compute].stop(env)
 
             @app.call(env)
           rescue NIFTY::ConfigurationError => e

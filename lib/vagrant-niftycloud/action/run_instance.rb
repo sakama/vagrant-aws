@@ -60,7 +60,7 @@ module VagrantPlugins
           # http://cloud.nifty.com/api/sdk/rdoc/
           begin
             # インスタンス立ち上げ開始
-            server = env[:niftycloud_compute].run_instances(options).instancesSet.item.first
+            server = env[:niftycloud_compute].create(options)
           rescue NIFTY::ConfigurationError => e
             raise Errors::NiftyCloudConfigurationError,
               :message => e.message
@@ -87,7 +87,7 @@ module VagrantPlugins
 
               count += 1 
               sleep 5
-              server = env[:niftycloud_compute].describe_instances(:instance_id => instance_id).reservationSet.item.first.instancesSet.item.first
+              server = env[:niftycloud_compute].get(env)
               env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
               if count > tries
                 # Delete the instance

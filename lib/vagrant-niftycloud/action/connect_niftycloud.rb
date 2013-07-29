@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-require "NIFTY"
 require "log4r"
-
-if !ENV["VAGRANT_LOG"].nil? && ENV["VAGRANT_LOG"].upcase=='DEBUG'
-  NIFTY::LOG.level = Logger::DEBUG
-end
 
 module VagrantPlugins
   module NiftyCloud
@@ -35,7 +30,7 @@ module VagrantPlugins
           # http://cloud.nifty.com/api/sdk/rdoc/
           begin
             @logger.info("Connecting to NiftyCloud...")
-            env[:niftycloud_compute] = NIFTY::Cloud::Base.new(niftycloud_config)
+            env[:niftycloud_compute] = Servers::Servers.new(niftycloud_config)
           rescue NIFTY::ConfigurationError => e
             raise Errors::NiftyCloudConfigurationError,
               :message => e.message
