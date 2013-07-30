@@ -7,8 +7,9 @@ Vagrant.configure("2") do |config|
   config.vm.provider :niftycloud do |niftycloud, override|
     niftycloud.access_key_id = ENV["NIFTY_CLOUD_ACCESS_KEY"] || "foo"
     niftycloud.secret_access_key = ENV["NIFTY_CLOUD_SECRET_KEY"] || "bar"
-    niftycloud.image_id = "26"
     niftycloud.zone= "east-12"
+
+    niftycloud.image_id = "26"
     niftycloud.instance_type= "mini"
     niftycloud.key_name = "sshkeypairname"
     niftycloud.firewall = "vagrantservers"
