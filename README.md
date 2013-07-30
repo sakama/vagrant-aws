@@ -5,10 +5,6 @@
 [![Build Status](https://travis-ci.org/sakama/vagrant-niftycloud.png)](https://travis-ci.org/sakama/vagrant-niftycloud)
 [![Code Climate](https://codeclimate.com/github/sakama/vagrant-niftycloud.png)](https://codeclimate.com/github/sakama/vagrant-niftycloud)
 
-`開発中！8月頭を目処に処理をブラッシュアップします`
-
-`リージョン・ゾーン周り以外のロジックはほぼ問題ないと思います`
-
 [Vagrant](http://www.vagrantup.com) 1.2以降のバージョンのproviderとして[ニフティクラウド](http://cloud.nifty.com/) を使えるようにするためのプラグインです。
 
 Vagrantでニフティクラウド上のサーバインスタンスの制御や、[Chef](http://www.opscode.com/chef/)や[Puppet](https://puppetlabs.com/) 等を使ったサーバのprovisioningが可能となります。
@@ -206,7 +202,8 @@ Vagrant.configure("2") do |config|
   config.vm.provider :niftycloud do |niftycloud, override|
     niftycloud.access_key_id = "foo"
     niftycloud.secret_access_key = "bar"
-    niftycloud.zone = "east-12"
+    niftycloud.zone = "east-12" # ここでどのゾーンで立ち上げるか決定
+    
     niftycloud.key_name = "vagrantkey"
     niftycloud.firewall = "test"
     niftycloud.password = "password"
@@ -214,12 +211,12 @@ Vagrant.configure("2") do |config|
     override.ssh.private_key_path = "/path/to/private_key.pem"
 
     # シンプルな書き方
-    niftycloud.zone_config "east-12", :image_id => 26
+    niftycloud.zone_config "east-13", :instance_type => "small"
 
     # より多くの設定を上書きしたい場合
     niftycloud.zone_config "east-13" do |zone|
       zone.image_id = 21
-      zone.instance_type = small
+      zone.instance_type = "small"
       zone.key_name = "vagrantkey2"
     end
   end
@@ -230,6 +227,19 @@ zone_configブロックでリージョン/ゾーン特有の設定を指定し�
 
 指定していない設定項目についてはトップレベルの設定値を継承します。
 
+### ニフティクラウドのリージョン切り替え
+ニフティクラウドのリージョン切り替えについてはVagrantfile中だけでは設定できません。
+
+環境変数`NIFTY_CLOUD_ENDPOINT_URL`に[適切なリクエスト先エンドポイント](http://cloud.nifty.com/api/endpoint.htm)を指定してやる必要があります。
+
+以下のコマンドを実行するか、.bashrcや.zshrc等に追記するなどして下さい。
+
+```
+# 東日本リージョンでAPI最新版を使用
+export NIFTY_CLOUD_ENDPOINT_URL='https://east-1.cp.cloud.nifty.com/api/'
+# 西日本リージョンでAPI最新版を使用
+export NIFTY_CLOUD_ENDPOINT_URL='https://west-1.cp.cloud.nifty.com/api/'
+```
 
 ## VagrantのNetwork機能への対応
 
