@@ -28,21 +28,13 @@ module VagrantPlugins
         def start(env)
           env[:ui].info(I18n.t("vagrant_niftycloud.resuming"))
 
-          # 起動直後等、resume処理できないステータスの場合一旦待つ
-          server = get(env[:machine])
-          while server.instanceState.name == 'pending'
-            sleep 5
-            server = get(env[:machine])
-            env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
-          end
+          # 起動直後等、start処理できないステータスの場合一旦待つ
+          wait_while_status_is(env, 'pending')
 
+          server = get(env[:machine])
           if server.instanceState.name != 'running'
             @connection.start_instances(:instance_id => env[:machine].id)
-            while server.instanceState.name != 'running'
-              sleep 5
-              server = get(env[:machine])
-              env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
-            end
+            wait_while_status_is(env, 'not_running')
           end
         end
 
@@ -51,20 +43,12 @@ module VagrantPlugins
           env[:ui].info(I18n.t("vagrant_niftycloud.suspending"))
 
           # 起動直後等、stop処理できないステータスの場合一旦待つ
-          server = get(env[:machine])
-          while server.instanceState.name == 'pending'
-            sleep 5
-            server = get(env[:machine])
-            env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
-          end
+          wait_while_status_is(env, 'pending')
 
+          server = get(env[:machine])
           if server.instanceState.name != 'stopped'
             @connection.stop_instances(:instance_id => env[:machine].id, :force => false)
-            while server.instanceState.name != 'stopped'
-              sleep 5
-              server = get(env[:machine])
-              env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
-            end
+            wait_while_status_is(env, 'not_stopped')
           end
         end
 
@@ -73,12 +57,7 @@ module VagrantPlugins
           env[:ui].info(I18n.t("vagrant_niftycloud.terminating"))
 
           # 起動直後等、terminate処理できないステータスの場合一旦待つ
-          server = get(env[:machine])
-          while server.instanceState.name == 'pending'
-            sleep 5
-            server = get(env[:machine])
-            env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
-          end
+          wait_while_status_is(env, 'pending')
 
           attribute = @connection.describe_instance_attribute(:instance_id => env[:machine].id, :attribute => 'disableApiTermination')
           if attribute.disableApiTermination.value == 'false'
@@ -90,7 +69,25 @@ module VagrantPlugins
           server = get(env[:machine])
           if server.instanceState.name == 'stopped'
             response = @connection.terminate_instances(:instance_id => env[:machine].id)
-            return response
+          end
+        end
+
+        # あるstatusである間、status確認を定期的に実行しつつ待機する
+        def wait_while_status_is(env, status)
+          server = get(env[:machine])
+          if status =~ /^not_/
+            status.sub!("not_", "")
+            while server.instanceState.name != status
+              env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
+              sleep 5
+              server = get(env[:machine])
+            end
+          else
+            while server.instanceState.name == status
+              env[:ui].info(I18n.t("vagrant_niftycloud.processing"))
+              sleep 5
+              server = get(env[:machine])
+            end
           end
         end
       end
