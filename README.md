@@ -35,7 +35,6 @@ vagrant upを実行する前に、VirtualBox等でVagrantを使用する時と�
 ```
 $ vagrant plugin install vagrant-niftycloud
 $ vagrant box add dummy https://github.com/sakama/vagrant-niftycloud/raw/master/dummy.box
-
 ```
 
 ### OSイメージの作成
@@ -241,6 +240,22 @@ export NIFTY_CLOUD_ENDPOINT_URL='https://east-1.cp.cloud.nifty.com/api/'
 export NIFTY_CLOUD_ENDPOINT_URL='https://west-1.cp.cloud.nifty.com/api/'
 ```
 
+### ニフティクラウドのサーバ起動時スクリプトのサポート
+
+```
+Vagrant.configure("2") do |config|
+  # ... other stuff
+
+  config.vm.provider "niftycloud" do |niftycloud|
+    # Option 1: 1行で指定
+    niftycloud.user_data = "#!/bin/bash\necho 'got user data' > /tmp/user_data.log\necho"
+
+    # Option 2: ファイルから読み込む
+    niftycloud.user_data = File.read("user_data.txt")
+  end
+end
+```
+
 ## VagrantのNetwork機能への対応
 
 
@@ -280,6 +295,6 @@ $ bundle exec rake
 $ bundle exec vagrant up --provider=niftycloud
 ```
 
-## ライセンス
+## License
 
-[vagrant-aws](https://github.com/mitchellh/vagrant-aws) をベースにニフティクラウド向けに修正を加えたものです。 オリジナルに準じて MITライセンス を適用します。
+[vagrant-aws](https://github.com/mitchellh/vagrant-aws) をベースにニフティクラウド向けに修正を加えたものです。 オリジナルに準じて MIT License を適用します。
