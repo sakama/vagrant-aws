@@ -38,7 +38,6 @@ module VagrantPlugins
           env[:ui].info(" -- Key Name: #{key_name}") if key_name
           env[:ui].info(" -- User Data: yes") if user_data
           env[:ui].info(" -- Firewall: #{firewall.inspect}") if !firewall.empty?
-          env[:ui].info(" -- User Data: #{user_data}") if user_data
 
           options = {
             :instance_id              => instance_id,
@@ -47,8 +46,9 @@ module VagrantPlugins
             :image_id                 => image_id,
             :key_name                 => zone_config.key_name,
             :user_data                => user_data,
+            :base64_encoded           => true,
             :password                 => password,
-            :accounting_type          => 2, #従量課金
+            :accounting_type          => 2,    #従量課金
             :disable_api_termination  => false #APIから即terminate可
           }
 
