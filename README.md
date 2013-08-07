@@ -241,6 +241,9 @@ export NIFTY_CLOUD_ENDPOINT_URL='https://west-1.cp.cloud.nifty.com/api/'
 ```
 
 ### ニフティクラウドのサーバ起動時スクリプトのサポート
+ニフティクラウドの[サーバ起動時スクリプト](http://cloud.nifty.com/service/svscript.htm)をサポートしています。
+
+以下のように指定して下さい。
 
 ```
 Vagrant.configure("2") do |config|
