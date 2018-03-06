@@ -32,7 +32,7 @@ vagrant upを実行する前に、VirtualBox等でVagrantを使用する時と�
 
 自分でboxファイルを作成するか、こちらで用意しているboxファイルを使用して、任意の名前でダミーのboxを追加して下さい。
 
-```
+```sh
 $ vagrant plugin install vagrant-niftycloud
 $ vagrant box add dummy https://github.com/sakama/vagrant-niftycloud/raw/master/dummy.box
 ```
@@ -55,7 +55,7 @@ chef-soloやchef-clientを予めインストールしておくかどうかはケ
 
 vagrant up時に[vagrant-omnibus](https://github.com/schisamo/vagrant-omnibus)を使うという手もあります。
 
-```
+```sh
 ## rootで実行
 # groupadd vagrant
 # useradd vagrant -g vagrant -G wheel
@@ -88,7 +88,7 @@ Vagrantfileを以下のような内容で作成します。
 
 Vagrantfileの`config.vm.provider`ブロックで各種パラメータを指定して下さい。
 
-```
+```ruby
 Vagrant.configure("2") do |config|
   config.vm.box = "dummy"
 
@@ -109,7 +109,7 @@ end
 
 ### コマンド
 
-```
+```sh
 
 # サーバ立ち上げ、provisioningの実行
 $ vagrant up --provider=niftycloud
@@ -178,7 +178,7 @@ VirtualBoxやVMWare Fusion向けの数GBあるboxと比較すると遙かに軽�
 上記のパラメータはVagrantfile中で以下のように設定することができます。
 
 
-```
+```ruby
 Vagrant.configure("2") do |config|
   # ... other stuff
 
@@ -194,7 +194,7 @@ end
 記述は以下のようになります。
 
 
-```
+```ruby
 Vagrant.configure("2") do |config|
   # ... other stuff
 
@@ -233,7 +233,7 @@ zone_configブロックでリージョン/ゾーン特有の設定を指定し�
 
 以下のコマンドを実行するか、.bashrcや.zshrc等に追記するなどして下さい。
 
-```
+```sh
 # 東日本リージョンでAPI最新版を使用
 export NIFTY_CLOUD_ENDPOINT_URL='https://east-1.cp.cloud.nifty.com/api/'
 # 西日本リージョンでAPI最新版を使用
@@ -245,7 +245,7 @@ export NIFTY_CLOUD_ENDPOINT_URL='https://west-1.cp.cloud.nifty.com/api/'
 
 以下のように指定して下さい。
 
-```
+```ruby
 Vagrant.configure("2") do |config|
   # ... other stuff
 
@@ -276,13 +276,13 @@ Vagrantの`config.vm.network`で設定可能なネットワーク機能につい
 
 `vagrant-niftycloud`プラグインをこのレポジトリからgit cloneした後、[Bundler](http://gembundler.com) を使用して必要なgem等のインストールを行なって下さい。
 
-```
+```sh
 $ bundle
 ```
 
 上記コマンド実行後、以下のコマンドにより`rake`を使用したユニットテストを実行することができます。
 
-```
+```sh
 $ bundle exec rake
 ```
 
@@ -294,7 +294,7 @@ $ bundle exec rake
 * bundle execコマンドにより実行
 
 
-```
+```sh
 $ bundle exec vagrant up --provider=niftycloud
 ```
 
