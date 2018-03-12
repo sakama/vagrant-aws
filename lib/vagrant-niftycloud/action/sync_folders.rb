@@ -26,6 +26,13 @@ module VagrantPlugins
               hostpath  = File.expand_path(data[:hostpath], env[:root_path])
               guestpath = data[:guestpath]
 
+              private_key_paths = ssh_info[:private_key_path]
+              private_key_path = private_key_paths[0]
+              if Vagrant::Util::Platform.windows? && ENV['PATH'].include?("cygwin")
+                hostpath  = hostpath.gsub(/\A(\w):/,'/cygdrive/\1')
+                private_key_path = private_key_path.gsub(/\A(\w):/,'/cygdrive/\1')
+              end
+
               # Make sure there is a trailing slash on the host path to
               # avoid creating an additional directory with rsync
               hostpath = "#{hostpath}/" if hostpath !~ /\/$/
@@ -43,7 +50,7 @@ module VagrantPlugins
               command = [
                 "rsync", "--verbose", "--archive", "-z",
                 "--exclude", ".vagrant/", "--exclude", ".git/",
-                "-e", "ssh -p #{ssh_info[:port]} -o StrictHostKeyChecking=no -i '#{ssh_info[:private_key_path]}'",
+                "-e", "ssh -p #{ssh_info[:port]} -o StrictHostKeyChecking=no -i '#{private_key_path}'",
                 hostpath,
                 "#{ssh_info[:username]}@#{ssh_info[:host]}:#{guestpath}"]
 
