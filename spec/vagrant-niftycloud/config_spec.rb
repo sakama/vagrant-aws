@@ -1,4 +1,5 @@
 require "vagrant-niftycloud/config"
+require 'rspec/its'
 
 describe VagrantPlugins::NiftyCloud::Config do
   let(:instance) { described_class.new }

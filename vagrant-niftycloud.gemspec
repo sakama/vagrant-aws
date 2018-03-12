@@ -16,9 +16,8 @@ Gem::Specification.new do |s|
   s.rubyforge_project         = "vagrant-nifycloud"
 
   s.add_development_dependency "rake"
-  s.add_development_dependency "rspec-core", "3.7.0"
-  s.add_development_dependency "rspec-expectations", "3.7.0"
-  s.add_development_dependency "rspec-mocks", "3.7.0"
+  s.add_development_dependency "rspec", "3.7.0"
+  s.add_development_dependency "rspec-its"
   s.add_dependency "nifty-cloud-sdk", "1.11.beta7"
 
   # The following block of code determines the files that should be included
