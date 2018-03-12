@@ -1,3 +1,8 @@
+## 0.4.0 (Mar 12, 2018)
+
+* Windows/Cygwin環境下でrsyncが正しく動作しない問題を修正 #12 @s-tomura thanks!
+* ニフクラの新タイプのサーバをサポートするため、Nifty Cloud SDKのバージョンをアップデート #9 @s-tomura thanks!
+
 ## 0.3.0 (Aug 7, 2013)
 
 * ニフティクラウドの[サーバ起動時スクリプト](http://cloud.nifty.com/service/svscript.htm)を正式サポート
